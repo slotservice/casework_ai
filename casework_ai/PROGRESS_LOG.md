@@ -236,6 +236,18 @@ Four critical bugs identified and fixed:
 - Proper product types: sink_cabinet, drawer_unit, base_cabinet, filler_strip
 - Matched product numbers: 1131011, 1010211, 1110100, 1160211, 1310311, 1080211, 1910100, 1120211, FLS1024
 
+### Test Run 8 (300 DPI, classification overhaul)
+- **Major classification fixes**: Eliminated false sink detections (was 14/26 sinks -> 0)
+- **Circle detection tightened**: param2 50->120, min radius increased, width validation (>24" for sinks), center/position checks
+- **Drawer detection improved**: Now checks evenly-spaced line signature, excludes toe kick and edges
+- **Block matcher scoring redesigned**: Base score reduced 0.5->0.2, width match now worth 0.40, config match 0.20
+- **DXF rewritten**: Shop-drawing-style output with proper door panels, drawer pulls, toe kick recess, sink basin outlines, filler hatching, full dimensioning with extension lines, title block
+- **Debug image improved**: Scaled up for readability, colored label badges, legend bar, summary stats
+- **Result: 26 objects, 26 matched (100%), 0 flagged**
+- Average confidence: 85% (more honest scoring)
+- Types: 7 base_cabinet, 15 drawer_unit, 4 narrow/filler items
+- DXF: 826 entities across 11 layers
+
 ---
 
 ## Phase 5: Deliverables Summary
@@ -243,12 +255,12 @@ Four critical bugs identified and fixed:
 ### Generated Output Files
 | File | Description |
 |------|-------------|
-| `output/E4_20260416_043223.dxf` | Clean editable DXF with 26 placed cabinets, dimensions, product numbers |
-| `output/E4_20260416_043223_detection.png` | Debug image showing detected objects with bounding boxes |
-| `output/block_index.json` | Full 5,995-entry block library index with extended width mappings |
+| `output/E4_20260416_061752.dxf` | Shop-drawing-style editable DXF with 26 placed cabinets (826 entities, 11 layers) |
+| `output/E4_20260416_061752_detection.png` | High-res detection visualization with labeled bounding boxes and legend |
+| `output/block_index.json` | Full block library index with decoded product info |
 | `output/elevations/page1_*.png` | Individual extracted elevation images (DETAIL, E2-E6, E4) |
-| `logs/E4_20260416_043223_confidence.json` | Detailed matching log with per-object confidence (JSON) |
-| `logs/E4_20260416_043223_report.txt` | Human-readable validation report: 26/26 matched, 0 flagged, 91% avg confidence |
+| `logs/E4_20260416_061752_confidence.json` | Detailed matching log with per-object confidence (JSON) |
+| `logs/E4_20260416_061752_report.txt` | Human-readable validation report: 26/26 matched, 0 flagged, 85% avg confidence |
 | `logs/pipeline.log` | Full pipeline execution log |
 | `rules/custom_rules.json` | Custom rule storage (empty, ready for user rules) |
 

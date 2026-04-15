@@ -1,0 +1,83 @@
+======================================================================
+CASEWORK AI PIPELINE - VALIDATION REPORT
+Generated: 2026-04-16 06:54:41
+======================================================================
+
+SUMMARY
+----------------------------------------
+Total objects detected:  26
+Successfully matched:    26
+Flagged/uncertain:       0
+Unmatched:               0
+High confidence (>=80%): 18
+Low confidence (<50%):   0
+Average confidence:      85.1%
+Overall match rate:      100.0%
+Scale factor:            5.92 px/inch
+Total width estimated:   425.0"
+
+MATCHED ITEMS
+----------------------------------------
+  [  1] base_cabinet         -> 1131011W     (conf: 67%, width: 30.0")
+  [  2] base_cabinet         -> CFC1001W     (conf: 60%, width: 7.0")
+  [  3] base_cabinet         -> 1010211W     (conf: 82%, width: 12.0")
+  [  4] base_cabinet         -> 1131011W     (conf: 67%, width: 30.0")
+  [  5] drawer_unit          -> 1010211W     (conf: 94%, width: 12.0")
+  [  6] drawer_unit          -> 1310311W     (conf: 100%, width: 18.0")
+  [  7] drawer_unit          -> 1160211W     (conf: 94%, width: 21.0")
+  [  8] drawer_unit          -> 1310311W     (conf: 100%, width: 18.0")
+  [  9] drawer_unit          -> 1080211W     (conf: 94%, width: 36.0")
+  [ 10] drawer_unit          -> 1910211W     (conf: 94%, width: 15.0")
+  [ 11] drawer_unit          -> 1910211W     (conf: 94%, width: 15.0")
+  [ 12] drawer_unit          -> 1010211W     (conf: 94%, width: 12.0")
+  [ 13] drawer_unit          -> 1010211W     (conf: 100%, width: 12.0")
+  [ 14] drawer_unit          -> CFC1001W     (conf: 60%, width: 6.0")
+  [ 15] drawer_unit          -> 1010211W     (conf: 100%, width: 12.0")
+  [ 16] drawer_unit          -> 1010211W     (conf: 100%, width: 12.0")
+  [ 17] drawer_unit          -> 1010211W     (conf: 100%, width: 12.0")
+  [ 18] base_cabinet         -> 1131011W     (conf: 67%, width: 30.0")
+  [ 19] base_cabinet         -> 1120211W     (conf: 82%, width: 24.0")
+  [ 20] base_cabinet         -> 1010211W     (conf: 82%, width: 12.0")
+  [ 21] drawer_unit          -> 1010211W     (conf: 94%, width: 12.0")
+  [ 22] drawer_unit          -> 1010211W     (conf: 100%, width: 12.0")
+  [ 23] drawer_unit          -> CFC1001W     (conf: 60%, width: 6.0")
+  [ 24] drawer_unit          -> 1010211W     (conf: 100%, width: 12.0")
+  [ 25] drawer_unit          -> CFC1001W     (conf: 60%, width: 7.0")
+  [ 26] base_cabinet         -> 1131011W     (conf: 67%, width: 30.0")
+
+FLAGGED / UNCERTAIN ITEMS
+----------------------------------------
+  No flagged items.
+
+DETAILED BREAKDOWN
+----------------------------------------
+  [OK  ] ID:  1 | Type: base_cabinet         | Product: 1131011W     | DetConf: 65% | MatchConf: 67% | Width: 30.0"
+  [OK  ] ID:  2 | Type: base_cabinet         | Product: CFC1001W     | DetConf: 65% | MatchConf: 60% | Width: 7.0"
+  [OK  ] ID:  3 | Type: base_cabinet         | Product: 1010211W     | DetConf: 70% | MatchConf: 82% | Width: 12.0"
+  [OK  ] ID:  4 | Type: base_cabinet         | Product: 1131011W     | DetConf: 65% | MatchConf: 67% | Width: 30.0"
+  [OK  ] ID:  5 | Type: drawer_unit          | Product: 1010211W     | DetConf: 75% | MatchConf: 94% | Width: 12.0"
+  [OK  ] ID:  6 | Type: drawer_unit          | Product: 1310311W     | DetConf: 75% | MatchConf: 100% | Width: 18.0"
+  [OK  ] ID:  7 | Type: drawer_unit          | Product: 1160211W     | DetConf: 75% | MatchConf: 94% | Width: 21.0"
+  [OK  ] ID:  8 | Type: drawer_unit          | Product: 1310311W     | DetConf: 75% | MatchConf: 100% | Width: 18.0"
+  [OK  ] ID:  9 | Type: drawer_unit          | Product: 1080211W     | DetConf: 70% | MatchConf: 94% | Width: 36.0"
+  [OK  ] ID: 10 | Type: drawer_unit          | Product: 1910211W     | DetConf: 75% | MatchConf: 94% | Width: 15.0"
+  [OK  ] ID: 11 | Type: drawer_unit          | Product: 1910211W     | DetConf: 85% | MatchConf: 94% | Width: 15.0"
+  [OK  ] ID: 12 | Type: drawer_unit          | Product: 1010211W     | DetConf: 85% | MatchConf: 94% | Width: 12.0"
+  [OK  ] ID: 13 | Type: drawer_unit          | Product: 1010211W     | DetConf: 75% | MatchConf: 100% | Width: 12.0"
+  [OK  ] ID: 14 | Type: drawer_unit          | Product: CFC1001W     | DetConf: 85% | MatchConf: 60% | Width: 6.0"
+  [OK  ] ID: 15 | Type: drawer_unit          | Product: 1010211W     | DetConf: 80% | MatchConf: 100% | Width: 12.0"
+  [OK  ] ID: 16 | Type: drawer_unit          | Product: 1010211W     | DetConf: 80% | MatchConf: 100% | Width: 12.0"
+  [OK  ] ID: 17 | Type: drawer_unit          | Product: 1010211W     | DetConf: 85% | MatchConf: 100% | Width: 12.0"
+  [OK  ] ID: 18 | Type: base_cabinet         | Product: 1131011W     | DetConf: 65% | MatchConf: 67% | Width: 30.0"
+  [OK  ] ID: 19 | Type: base_cabinet         | Product: 1120211W     | DetConf: 65% | MatchConf: 82% | Width: 24.0"
+  [OK  ] ID: 20 | Type: base_cabinet         | Product: 1010211W     | DetConf: 65% | MatchConf: 82% | Width: 12.0"
+  [OK  ] ID: 21 | Type: drawer_unit          | Product: 1010211W     | DetConf: 80% | MatchConf: 94% | Width: 12.0"
+  [OK  ] ID: 22 | Type: drawer_unit          | Product: 1010211W     | DetConf: 80% | MatchConf: 100% | Width: 12.0"
+  [OK  ] ID: 23 | Type: drawer_unit          | Product: CFC1001W     | DetConf: 85% | MatchConf: 60% | Width: 6.0"
+  [OK  ] ID: 24 | Type: drawer_unit          | Product: 1010211W     | DetConf: 80% | MatchConf: 100% | Width: 12.0"
+  [OK  ] ID: 25 | Type: drawer_unit          | Product: CFC1001W     | DetConf: 85% | MatchConf: 60% | Width: 7.0"
+  [OK  ] ID: 26 | Type: base_cabinet         | Product: 1131011W     | DetConf: 65% | MatchConf: 67% | Width: 30.0"
+
+======================================================================
+END OF REPORT
+======================================================================

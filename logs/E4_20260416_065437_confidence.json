@@ -4,19 +4,19 @@
     "total_matched": 26,
     "total_flagged": 0,
     "total_unmatched": 0,
-    "high_confidence_count": 22,
+    "high_confidence_count": 18,
     "low_confidence_count": 0,
-    "average_confidence": 0.923,
+    "average_confidence": 0.851,
     "match_rate": 100.0,
     "detection_scale_factor": 5.921052631578948,
     "total_width_inches": 425.0
   },
   "entries": [
     {
-      "timestamp": "2026-04-16T04:52:32.410505",
+      "timestamp": "2026-04-16T06:54:41.852709",
       "elevation": "E4",
       "object_id": 1,
-      "casework_type": "sink_cabinet",
+      "casework_type": "base_cabinet",
       "bbox": [
         58,
         5,
@@ -25,53 +25,50 @@
       ],
       "estimated_width": 30.0,
       "estimated_height": 40.4,
-      "detection_confidence": 0.75,
+      "detection_confidence": 0.65,
       "matched_product": "1131011W",
-      "match_confidence": 0.92,
+      "match_confidence": 0.6700000000000002,
       "is_flagged": false,
       "flag_reason": "",
-      "notes": "Category match; Exact width match (30.0\"); Circle feature suggests sink; Standard right-hand orientation; Wood block preferred",
+      "notes": "Category match; Exact width match (30.0\"); Standard right-hand; Wood block",
       "candidates": [
         {
           "product_number": "1131011W",
-          "score": 0.92,
+          "score": 0.6700000000000002,
           "reasons": [
             "Category match",
             "Exact width match (30.0\")",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
         {
           "product_number": "1131211W",
-          "score": 0.92,
+          "score": 0.6700000000000002,
           "reasons": [
             "Category match",
             "Exact width match (30.0\")",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
         {
           "product_number": "1132011W",
-          "score": 0.92,
+          "score": 0.6700000000000002,
           "reasons": [
             "Category match",
             "Exact width match (30.0\")",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         }
       ]
     },
     {
-      "timestamp": "2026-04-16T04:52:32.410505",
+      "timestamp": "2026-04-16T06:54:41.852709",
       "elevation": "E4",
       "object_id": 2,
       "casework_type": "base_cabinet",
@@ -83,7 +80,7 @@
       ],
       "estimated_width": 7.0,
       "estimated_height": 40.4,
-      "detection_confidence": 0.7,
+      "detection_confidence": 0.65,
       "matched_product": "CFC1001W",
       "match_confidence": 0.6,
       "is_flagged": false,
@@ -92,10 +89,10 @@
       "candidates": []
     },
     {
-      "timestamp": "2026-04-16T04:52:32.410505",
+      "timestamp": "2026-04-16T06:54:41.852709",
       "elevation": "E4",
       "object_id": 3,
-      "casework_type": "drawer_unit",
+      "casework_type": "base_cabinet",
       "bbox": [
         269,
         5,
@@ -104,55 +101,55 @@
       ],
       "estimated_width": 12.0,
       "estimated_height": 40.4,
-      "detection_confidence": 0.7999999999999999,
+      "detection_confidence": 0.7,
       "matched_product": "1010211W",
-      "match_confidence": 0.9700000000000001,
+      "match_confidence": 0.8200000000000002,
       "is_flagged": false,
       "flag_reason": "",
-      "notes": "Category match; Exact width match (12.0\"); Drawer features match (7 drawers, 11 h-lines); Standard right-hand orientation; Wood block preferred",
+      "notes": "Category match; Exact width match (12.0\"); Drawer features confirmed (2 drawers, 11 h-lines); Standard right-hand; Wood block",
       "candidates": [
         {
           "product_number": "1010211W",
-          "score": 0.9700000000000001,
+          "score": 0.8200000000000002,
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (7 drawers, 11 h-lines)",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Drawer features confirmed (2 drawers, 11 h-lines)",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
         {
           "product_number": "1020211W",
-          "score": 0.9700000000000001,
+          "score": 0.8200000000000002,
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (7 drawers, 11 h-lines)",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Drawer features confirmed (2 drawers, 11 h-lines)",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
         {
           "product_number": "1010222W",
-          "score": 0.9500000000000001,
+          "score": 0.8000000000000002,
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (7 drawers, 11 h-lines)",
-            "Wood block preferred"
+            "Drawer features confirmed (2 drawers, 11 h-lines)",
+            "Wood block"
           ],
           "penalties": []
         }
       ]
     },
     {
-      "timestamp": "2026-04-16T04:52:32.410505",
+      "timestamp": "2026-04-16T06:54:41.852709",
       "elevation": "E4",
       "object_id": 4,
-      "casework_type": "sink_cabinet",
+      "casework_type": "base_cabinet",
       "bbox": [
         347,
         5,
@@ -161,56 +158,53 @@
       ],
       "estimated_width": 30.0,
       "estimated_height": 40.4,
-      "detection_confidence": 0.7000000000000001,
+      "detection_confidence": 0.65,
       "matched_product": "1131011W",
-      "match_confidence": 0.92,
+      "match_confidence": 0.6700000000000002,
       "is_flagged": false,
       "flag_reason": "",
-      "notes": "Category match; Exact width match (30.0\"); Circle feature suggests sink; Standard right-hand orientation; Wood block preferred",
+      "notes": "Category match; Exact width match (30.0\"); Standard right-hand; Wood block",
       "candidates": [
         {
           "product_number": "1131011W",
-          "score": 0.92,
+          "score": 0.6700000000000002,
           "reasons": [
             "Category match",
             "Exact width match (30.0\")",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
         {
           "product_number": "1131211W",
-          "score": 0.92,
+          "score": 0.6700000000000002,
           "reasons": [
             "Category match",
             "Exact width match (30.0\")",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
         {
           "product_number": "1132011W",
-          "score": 0.92,
+          "score": 0.6700000000000002,
           "reasons": [
             "Category match",
             "Exact width match (30.0\")",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         }
       ]
     },
     {
-      "timestamp": "2026-04-16T04:52:32.410505",
+      "timestamp": "2026-04-16T06:54:41.852709",
       "elevation": "E4",
       "object_id": 5,
-      "casework_type": "sink_cabinet",
+      "casework_type": "drawer_unit",
       "bbox": [
         542,
         5,
@@ -221,56 +215,56 @@
       "estimated_height": 40.4,
       "detection_confidence": 0.75,
       "matched_product": "1010211W",
-      "match_confidence": 1.0,
+      "match_confidence": 0.9400000000000002,
       "is_flagged": false,
       "flag_reason": "",
-      "notes": "Category match; Exact width match (12.0\"); Drawer features match (8 drawers, 12 h-lines); Circle feature suggests sink; Standard right-hand orientation; Wood block preferred",
+      "notes": "Category match; Exact width match (12.0\"); Related config: door_drawer; Drawer features confirmed (3 drawers, 12 h-lines); Standard right-hand; Wood block",
       "candidates": [
         {
           "product_number": "1010211W",
-          "score": 1.0,
+          "score": 0.9400000000000002,
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (8 drawers, 12 h-lines)",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
-          ],
-          "penalties": []
-        },
-        {
-          "product_number": "1010222W",
-          "score": 1.0,
-          "reasons": [
-            "Category match",
-            "Exact width match (12.0\")",
-            "Drawer features match (8 drawers, 12 h-lines)",
-            "Circle feature suggests sink",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (3 drawers, 12 h-lines)",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
         {
           "product_number": "1020211W",
-          "score": 1.0,
+          "score": 0.9400000000000002,
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (8 drawers, 12 h-lines)",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (3 drawers, 12 h-lines)",
+            "Standard right-hand",
+            "Wood block"
+          ],
+          "penalties": []
+        },
+        {
+          "product_number": "1010222W",
+          "score": 0.9200000000000002,
+          "reasons": [
+            "Category match",
+            "Exact width match (12.0\")",
+            "Related config: door_drawer",
+            "Drawer features confirmed (3 drawers, 12 h-lines)",
+            "Wood block"
           ],
           "penalties": []
         }
       ]
     },
     {
-      "timestamp": "2026-04-16T04:52:32.410505",
+      "timestamp": "2026-04-16T06:54:41.852709",
       "elevation": "E4",
       "object_id": 6,
-      "casework_type": "sink_cabinet",
+      "casework_type": "drawer_unit",
       "bbox": [
         618,
         5,
@@ -280,65 +274,58 @@
       "estimated_width": 18.0,
       "estimated_height": 40.4,
       "detection_confidence": 0.75,
-      "matched_product": "1110100W",
+      "matched_product": "1310311W",
       "match_confidence": 1.0,
       "is_flagged": false,
       "flag_reason": "",
-      "notes": "Category match; Exact width match (18.0\"); Config type preference: full_door; Center vertical line suggests double door; Circle feature suggests sink; Wood block preferred",
+      "notes": "Category match; Exact width match (18.0\"); Config match: drawer; Drawer features confirmed (3 drawers, 12 h-lines); Standard right-hand; Wood block",
       "candidates": [
         {
-          "product_number": "1110100W",
+          "product_number": "1310311W",
           "score": 1.0,
           "reasons": [
             "Category match",
             "Exact width match (18.0\")",
-            "Config type preference: full_door",
-            "Center vertical line suggests double door",
-            "Circle feature suggests sink",
-            "Wood block preferred"
+            "Config match: drawer",
+            "Drawer features confirmed (3 drawers, 12 h-lines)",
+            "Standard right-hand",
+            "Wood block"
           ],
-          "penalties": [
-            "Drawer features but block is door/open config"
-          ]
+          "penalties": []
         },
         {
-          "product_number": "1110111W",
+          "product_number": "1410311W",
           "score": 1.0,
           "reasons": [
             "Category match",
             "Exact width match (18.0\")",
-            "Config type preference: full_door",
-            "Center vertical line suggests double door",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Config match: drawer",
+            "Drawer features confirmed (3 drawers, 12 h-lines)",
+            "Standard right-hand",
+            "Wood block"
           ],
-          "penalties": [
-            "Drawer features but block is door/open config"
-          ]
+          "penalties": []
         },
         {
-          "product_number": "1110122W",
+          "product_number": "1510311W",
           "score": 1.0,
           "reasons": [
             "Category match",
             "Exact width match (18.0\")",
-            "Config type preference: full_door",
-            "Center vertical line suggests double door",
-            "Circle feature suggests sink",
-            "Wood block preferred"
+            "Config match: drawer",
+            "Drawer features confirmed (3 drawers, 12 h-lines)",
+            "Standard right-hand",
+            "Wood block"
           ],
-          "penalties": [
-            "Drawer features but block is door/open config"
-          ]
+          "penalties": []
         }
       ]
     },
     {
-      "timestamp": "2026-04-16T04:52:32.410505",
+      "timestamp": "2026-04-16T06:54:41.852709",
       "elevation": "E4",
       "object_id": 7,
-      "casework_type": "sink_cabinet",
+      "casework_type": "drawer_unit",
       "bbox": [
         717,
         5,
@@ -349,53 +336,54 @@
       "estimated_height": 40.4,
       "detection_confidence": 0.75,
       "matched_product": "1160211W",
-      "match_confidence": 1.0,
+      "match_confidence": 0.9400000000000002,
       "is_flagged": false,
       "flag_reason": "",
-      "notes": "Category match; Exact width match (21.0\"); Drawer features match (6 drawers, 10 h-lines); Circle feature suggests sink; Standard right-hand orientation; Wood block preferred",
+      "notes": "Category match; Exact width match (21.0\"); Related config: door_drawer; Drawer features confirmed (3 drawers, 10 h-lines); Standard right-hand; Wood block",
       "candidates": [
         {
           "product_number": "1160211W",
-          "score": 1.0,
+          "score": 0.9400000000000002,
           "reasons": [
             "Category match",
             "Exact width match (21.0\")",
-            "Drawer features match (6 drawers, 10 h-lines)",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
-          ],
-          "penalties": []
-        },
-        {
-          "product_number": "1160222W",
-          "score": 1.0,
-          "reasons": [
-            "Category match",
-            "Exact width match (21.0\")",
-            "Drawer features match (6 drawers, 10 h-lines)",
-            "Circle feature suggests sink",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (3 drawers, 10 h-lines)",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
         {
           "product_number": "1260211W",
-          "score": 1.0,
+          "score": 0.9400000000000002,
           "reasons": [
             "Category match",
             "Exact width match (21.0\")",
-            "Drawer features match (6 drawers, 10 h-lines)",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (3 drawers, 10 h-lines)",
+            "Standard right-hand",
+            "Wood block"
+          ],
+          "penalties": []
+        },
+        {
+          "product_number": "1660211W",
+          "score": 0.9400000000000002,
+          "reasons": [
+            "Category match",
+            "Exact width match (21.0\")",
+            "Related config: door_drawer",
+            "Drawer features confirmed (3 drawers, 10 h-lines)",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         }
       ]
     },
     {
-      "timestamp": "2026-04-16T04:52:32.410505",
+      "timestamp": "2026-04-16T06:54:41.852709",
       "elevation": "E4",
       "object_id": 8,
       "casework_type": "drawer_unit",
@@ -407,12 +395,12 @@
       ],
       "estimated_width": 18.0,
       "estimated_height": 40.4,
-      "detection_confidence": 0.7999999999999999,
+      "detection_confidence": 0.75,
       "matched_product": "1310311W",
       "match_confidence": 1.0,
       "is_flagged": false,
       "flag_reason": "",
-      "notes": "Category match; Exact width match (18.0\"); Config type preference: drawer; Drawer features match (6 drawers, 11 h-lines); Standard right-hand orientation; Wood block preferred",
+      "notes": "Category match; Exact width match (18.0\"); Config match: drawer; Drawer features confirmed (3 drawers, 11 h-lines); Standard right-hand; Wood block",
       "candidates": [
         {
           "product_number": "1310311W",
@@ -420,10 +408,10 @@
           "reasons": [
             "Category match",
             "Exact width match (18.0\")",
-            "Config type preference: drawer",
-            "Drawer features match (6 drawers, 11 h-lines)",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Config match: drawer",
+            "Drawer features confirmed (3 drawers, 11 h-lines)",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
@@ -433,10 +421,10 @@
           "reasons": [
             "Category match",
             "Exact width match (18.0\")",
-            "Config type preference: drawer",
-            "Drawer features match (6 drawers, 11 h-lines)",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Config match: drawer",
+            "Drawer features confirmed (3 drawers, 11 h-lines)",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
@@ -446,20 +434,20 @@
           "reasons": [
             "Category match",
             "Exact width match (18.0\")",
-            "Config type preference: drawer",
-            "Drawer features match (6 drawers, 11 h-lines)",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Config match: drawer",
+            "Drawer features confirmed (3 drawers, 11 h-lines)",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         }
       ]
     },
     {
-      "timestamp": "2026-04-16T04:52:32.410505",
+      "timestamp": "2026-04-16T06:54:41.852709",
       "elevation": "E4",
       "object_id": 9,
-      "casework_type": "sink_cabinet",
+      "casework_type": "drawer_unit",
       "bbox": [
         936,
         5,
@@ -470,57 +458,56 @@
       "estimated_height": 40.4,
       "detection_confidence": 0.7000000000000001,
       "matched_product": "1080211W",
-      "match_confidence": 1.0,
+      "match_confidence": 0.9400000000000002,
       "is_flagged": false,
       "flag_reason": "",
-      "notes": "Category match; Exact width match (36.0\"); Drawer features match (8 drawers, 11 h-lines); Center vertical line suggests double door; Circle feature suggests sink; Standard right-hand orientation; Wood block preferred",
+      "notes": "Category match; Exact width match (36.0\"); Related config: door_drawer; Drawer features confirmed (3 drawers, 11 h-lines); Standard right-hand; Wood block",
       "candidates": [
         {
           "product_number": "1080211W",
-          "score": 1.0,
+          "score": 0.9400000000000002,
           "reasons": [
             "Category match",
             "Exact width match (36.0\")",
-            "Drawer features match (8 drawers, 11 h-lines)",
-            "Center vertical line suggests double door",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (3 drawers, 11 h-lines)",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
         {
           "product_number": "1080222W",
-          "score": 1.0,
+          "score": 0.9200000000000002,
           "reasons": [
             "Category match",
             "Exact width match (36.0\")",
-            "Drawer features match (8 drawers, 11 h-lines)",
-            "Center vertical line suggests double door",
-            "Circle feature suggests sink",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (3 drawers, 11 h-lines)",
+            "Wood block"
           ],
           "penalties": []
         },
         {
           "product_number": "1083011W",
-          "score": 0.92,
+          "score": 0.5900000000000002,
           "reasons": [
             "Category match",
             "Exact width match (36.0\")",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Standard right-hand",
+            "Wood block"
           ],
-          "penalties": []
+          "penalties": [
+            "Config mismatch: want drawer, got config_30"
+          ]
         }
       ]
     },
     {
-      "timestamp": "2026-04-16T04:52:32.410505",
+      "timestamp": "2026-04-16T06:54:41.852709",
       "elevation": "E4",
       "object_id": 10,
-      "casework_type": "sink_cabinet",
+      "casework_type": "drawer_unit",
       "bbox": [
         1135,
         5,
@@ -530,65 +517,56 @@
       "estimated_width": 15.0,
       "estimated_height": 40.4,
       "detection_confidence": 0.75,
-      "matched_product": "1910100W",
-      "match_confidence": 1.0,
+      "matched_product": "1910211W",
+      "match_confidence": 0.9400000000000002,
       "is_flagged": false,
       "flag_reason": "",
-      "notes": "Category match; Exact width match (15.0\"); Config type preference: full_door; Center vertical line suggests double door; Circle feature suggests sink; Wood block preferred",
+      "notes": "Category match; Exact width match (15.0\"); Related config: door_drawer; Drawer features confirmed (3 drawers, 10 h-lines); Standard right-hand; Wood block",
       "candidates": [
         {
-          "product_number": "1910100W",
-          "score": 1.0,
+          "product_number": "1910211W",
+          "score": 0.9400000000000002,
           "reasons": [
             "Category match",
             "Exact width match (15.0\")",
-            "Config type preference: full_door",
-            "Center vertical line suggests double door",
-            "Circle feature suggests sink",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (3 drawers, 10 h-lines)",
+            "Standard right-hand",
+            "Wood block"
           ],
-          "penalties": [
-            "Drawer features but block is door/open config"
-          ]
+          "penalties": []
         },
         {
-          "product_number": "1910111W",
-          "score": 1.0,
+          "product_number": "1910222W",
+          "score": 0.9200000000000002,
           "reasons": [
             "Category match",
             "Exact width match (15.0\")",
-            "Config type preference: full_door",
-            "Center vertical line suggests double door",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (3 drawers, 10 h-lines)",
+            "Wood block"
           ],
-          "penalties": [
-            "Drawer features but block is door/open config"
-          ]
+          "penalties": []
         },
         {
-          "product_number": "1910122W",
-          "score": 1.0,
+          "product_number": "1910233W",
+          "score": 0.9200000000000002,
           "reasons": [
             "Category match",
             "Exact width match (15.0\")",
-            "Config type preference: full_door",
-            "Center vertical line suggests double door",
-            "Circle feature suggests sink",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (3 drawers, 10 h-lines)",
+            "Wood block"
           ],
-          "penalties": [
-            "Drawer features but block is door/open config"
-          ]
+          "penalties": []
         }
       ]
     },
     {
-      "timestamp": "2026-04-16T04:52:32.410505",
+      "timestamp": "2026-04-16T06:54:41.852709",
       "elevation": "E4",
       "object_id": 11,
-      "casework_type": "sink_cabinet",
+      "casework_type": "drawer_unit",
       "bbox": [
         1245,
         20,
@@ -597,54 +575,54 @@
       ],
       "estimated_width": 15.0,
       "estimated_height": 31.4,
-      "detection_confidence": 0.75,
+      "detection_confidence": 0.85,
       "matched_product": "1910211W",
-      "match_confidence": 1.0,
+      "match_confidence": 0.9400000000000002,
       "is_flagged": false,
       "flag_reason": "",
-      "notes": "Category match; Exact width match (15.0\"); Drawer features match (16 drawers, 11 h-lines); Circle feature suggests sink; Standard right-hand orientation; Wood block preferred",
+      "notes": "Category match; Exact width match (15.0\"); Related config: door_drawer; Drawer features confirmed (8 drawers, 11 h-lines); Standard right-hand; Wood block",
       "candidates": [
         {
           "product_number": "1910211W",
-          "score": 1.0,
+          "score": 0.9400000000000002,
           "reasons": [
             "Category match",
             "Exact width match (15.0\")",
-            "Drawer features match (16 drawers, 11 h-lines)",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (8 drawers, 11 h-lines)",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
         {
           "product_number": "1910222W",
-          "score": 1.0,
+          "score": 0.9200000000000002,
           "reasons": [
             "Category match",
             "Exact width match (15.0\")",
-            "Drawer features match (16 drawers, 11 h-lines)",
-            "Circle feature suggests sink",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (8 drawers, 11 h-lines)",
+            "Wood block"
           ],
           "penalties": []
         },
         {
           "product_number": "1910233W",
-          "score": 1.0,
+          "score": 0.9200000000000002,
           "reasons": [
             "Category match",
             "Exact width match (15.0\")",
-            "Drawer features match (16 drawers, 11 h-lines)",
-            "Circle feature suggests sink",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (8 drawers, 11 h-lines)",
+            "Wood block"
           ],
           "penalties": []
         }
       ]
     },
     {
-      "timestamp": "2026-04-16T04:52:32.410505",
+      "timestamp": "2026-04-16T06:54:41.852709",
       "elevation": "E4",
       "object_id": 12,
       "casework_type": "drawer_unit",
@@ -656,52 +634,55 @@
       ],
       "estimated_width": 12.0,
       "estimated_height": 38.0,
-      "detection_confidence": 0.7999999999999999,
+      "detection_confidence": 0.85,
       "matched_product": "1010211W",
-      "match_confidence": 0.9700000000000001,
+      "match_confidence": 0.9400000000000002,
       "is_flagged": false,
       "flag_reason": "",
-      "notes": "Category match; Exact width match (12.0\"); Drawer features match (9 drawers, 14 h-lines); Standard right-hand orientation; Wood block preferred",
+      "notes": "Category match; Exact width match (12.0\"); Related config: door_drawer; Drawer features confirmed (7 drawers, 14 h-lines); Standard right-hand; Wood block",
       "candidates": [
         {
           "product_number": "1010211W",
-          "score": 0.9700000000000001,
+          "score": 0.9400000000000002,
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (9 drawers, 14 h-lines)",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (7 drawers, 14 h-lines)",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
         {
           "product_number": "1020211W",
-          "score": 0.9700000000000001,
+          "score": 0.9400000000000002,
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (9 drawers, 14 h-lines)",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (7 drawers, 14 h-lines)",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
         {
           "product_number": "1010222W",
-          "score": 0.9500000000000001,
+          "score": 0.9200000000000002,
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (9 drawers, 14 h-lines)",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (7 drawers, 14 h-lines)",
+            "Wood block"
           ],
           "penalties": []
         }
       ]
     },
     {
-      "timestamp": "2026-04-16T04:52:32.410505",
+      "timestamp": "2026-04-16T06:54:41.852709",
       "elevation": "E4",
       "object_id": 13,
       "casework_type": "drawer_unit",
@@ -713,12 +694,12 @@
       ],
       "estimated_width": 12.0,
       "estimated_height": 38.0,
-      "detection_confidence": 0.7,
+      "detection_confidence": 0.75,
       "matched_product": "1010211W",
       "match_confidence": 1.0,
       "is_flagged": false,
       "flag_reason": "",
-      "notes": "Category match; Exact width match (12.0\"); Drawer features match (8 drawers, 12 h-lines); Center vertical line suggests double door; Standard right-hand orientation; Wood block preferred",
+      "notes": "Category match; Exact width match (12.0\"); Related config: door_drawer; Drawer features confirmed (7 drawers, 12 h-lines); Double door pattern confirmed; Standard right-hand; Wood block",
       "candidates": [
         {
           "product_number": "1010211W",
@@ -726,10 +707,11 @@
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (8 drawers, 12 h-lines)",
-            "Center vertical line suggests double door",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (7 drawers, 12 h-lines)",
+            "Double door pattern confirmed",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
@@ -739,9 +721,10 @@
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (8 drawers, 12 h-lines)",
-            "Center vertical line suggests double door",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (7 drawers, 12 h-lines)",
+            "Double door pattern confirmed",
+            "Wood block"
           ],
           "penalties": []
         },
@@ -751,17 +734,18 @@
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (8 drawers, 12 h-lines)",
-            "Center vertical line suggests double door",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (7 drawers, 12 h-lines)",
+            "Double door pattern confirmed",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         }
       ]
     },
     {
-      "timestamp": "2026-04-16T04:52:32.410505",
+      "timestamp": "2026-04-16T06:54:41.852709",
       "elevation": "E4",
       "object_id": 14,
       "casework_type": "drawer_unit",
@@ -773,7 +757,7 @@
       ],
       "estimated_width": 6.0,
       "estimated_height": 38.0,
-      "detection_confidence": 0.7999999999999999,
+      "detection_confidence": 0.85,
       "matched_product": "CFC1001W",
       "match_confidence": 0.6,
       "is_flagged": false,
@@ -782,10 +766,10 @@
       "candidates": []
     },
     {
-      "timestamp": "2026-04-16T04:52:32.410505",
+      "timestamp": "2026-04-16T06:54:41.852709",
       "elevation": "E4",
       "object_id": 15,
-      "casework_type": "sink_cabinet",
+      "casework_type": "drawer_unit",
       "bbox": [
         1537,
         5,
@@ -794,12 +778,12 @@
       ],
       "estimated_width": 12.0,
       "estimated_height": 38.0,
-      "detection_confidence": 0.7000000000000001,
+      "detection_confidence": 0.8,
       "matched_product": "1010211W",
       "match_confidence": 1.0,
       "is_flagged": false,
       "flag_reason": "",
-      "notes": "Category match; Exact width match (12.0\"); Drawer features match (16 drawers, 22 h-lines); Center vertical line suggests double door; Circle feature suggests sink; Standard right-hand orientation; Wood block preferred",
+      "notes": "Category match; Exact width match (12.0\"); Related config: door_drawer; Drawer features confirmed (14 drawers, 22 h-lines); Double door pattern confirmed; Standard right-hand; Wood block",
       "candidates": [
         {
           "product_number": "1010211W",
@@ -807,11 +791,11 @@
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (16 drawers, 22 h-lines)",
-            "Center vertical line suggests double door",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (14 drawers, 22 h-lines)",
+            "Double door pattern confirmed",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
@@ -821,10 +805,10 @@
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (16 drawers, 22 h-lines)",
-            "Center vertical line suggests double door",
-            "Circle feature suggests sink",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (14 drawers, 22 h-lines)",
+            "Double door pattern confirmed",
+            "Wood block"
           ],
           "penalties": []
         },
@@ -834,18 +818,18 @@
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (16 drawers, 22 h-lines)",
-            "Center vertical line suggests double door",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (14 drawers, 22 h-lines)",
+            "Double door pattern confirmed",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         }
       ]
     },
     {
-      "timestamp": "2026-04-16T04:52:32.410505",
+      "timestamp": "2026-04-16T06:54:41.852709",
       "elevation": "E4",
       "object_id": 16,
       "casework_type": "drawer_unit",
@@ -857,12 +841,12 @@
       ],
       "estimated_width": 12.0,
       "estimated_height": 38.0,
-      "detection_confidence": 0.75,
+      "detection_confidence": 0.8,
       "matched_product": "1010211W",
       "match_confidence": 1.0,
       "is_flagged": false,
       "flag_reason": "",
-      "notes": "Category match; Exact width match (12.0\"); Drawer features match (11 drawers, 17 h-lines); Center vertical line suggests double door; Standard right-hand orientation; Wood block preferred",
+      "notes": "Category match; Exact width match (12.0\"); Related config: door_drawer; Drawer features confirmed (8 drawers, 17 h-lines); Double door pattern confirmed; Standard right-hand; Wood block",
       "candidates": [
         {
           "product_number": "1010211W",
@@ -870,10 +854,11 @@
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (11 drawers, 17 h-lines)",
-            "Center vertical line suggests double door",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (8 drawers, 17 h-lines)",
+            "Double door pattern confirmed",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
@@ -883,9 +868,10 @@
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (11 drawers, 17 h-lines)",
-            "Center vertical line suggests double door",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (8 drawers, 17 h-lines)",
+            "Double door pattern confirmed",
+            "Wood block"
           ],
           "penalties": []
         },
@@ -895,20 +881,21 @@
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (11 drawers, 17 h-lines)",
-            "Center vertical line suggests double door",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (8 drawers, 17 h-lines)",
+            "Double door pattern confirmed",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         }
       ]
     },
     {
-      "timestamp": "2026-04-16T04:52:32.410505",
+      "timestamp": "2026-04-16T06:54:41.852709",
       "elevation": "E4",
       "object_id": 17,
-      "casework_type": "sink_cabinet",
+      "casework_type": "drawer_unit",
       "bbox": [
         1655,
         5,
@@ -917,12 +904,12 @@
       ],
       "estimated_width": 12.0,
       "estimated_height": 38.0,
-      "detection_confidence": 0.75,
+      "detection_confidence": 0.85,
       "matched_product": "1010211W",
       "match_confidence": 1.0,
       "is_flagged": false,
       "flag_reason": "",
-      "notes": "Category match; Exact width match (12.0\"); Drawer features match (9 drawers, 15 h-lines); Center vertical line suggests double door; Circle feature suggests sink; Standard right-hand orientation; Wood block preferred",
+      "notes": "Category match; Exact width match (12.0\"); Related config: door_drawer; Drawer features confirmed (6 drawers, 15 h-lines); Double door pattern confirmed; Standard right-hand; Wood block",
       "candidates": [
         {
           "product_number": "1010211W",
@@ -930,11 +917,11 @@
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (9 drawers, 15 h-lines)",
-            "Center vertical line suggests double door",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (6 drawers, 15 h-lines)",
+            "Double door pattern confirmed",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
@@ -944,10 +931,10 @@
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (9 drawers, 15 h-lines)",
-            "Center vertical line suggests double door",
-            "Circle feature suggests sink",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (6 drawers, 15 h-lines)",
+            "Double door pattern confirmed",
+            "Wood block"
           ],
           "penalties": []
         },
@@ -957,21 +944,21 @@
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (9 drawers, 15 h-lines)",
-            "Center vertical line suggests double door",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (6 drawers, 15 h-lines)",
+            "Double door pattern confirmed",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         }
       ]
     },
     {
-      "timestamp": "2026-04-16T04:52:32.410505",
+      "timestamp": "2026-04-16T06:54:41.852709",
       "elevation": "E4",
       "object_id": 18,
-      "casework_type": "sink_cabinet",
+      "casework_type": "base_cabinet",
       "bbox": [
         1723,
         5,
@@ -980,56 +967,53 @@
       ],
       "estimated_width": 30.0,
       "estimated_height": 38.0,
-      "detection_confidence": 0.75,
+      "detection_confidence": 0.65,
       "matched_product": "1131011W",
-      "match_confidence": 0.92,
+      "match_confidence": 0.6700000000000002,
       "is_flagged": false,
       "flag_reason": "",
-      "notes": "Category match; Exact width match (30.0\"); Circle feature suggests sink; Standard right-hand orientation; Wood block preferred",
+      "notes": "Category match; Exact width match (30.0\"); Standard right-hand; Wood block",
       "candidates": [
         {
           "product_number": "1131011W",
-          "score": 0.92,
+          "score": 0.6700000000000002,
           "reasons": [
             "Category match",
             "Exact width match (30.0\")",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
         {
           "product_number": "1131211W",
-          "score": 0.92,
+          "score": 0.6700000000000002,
           "reasons": [
             "Category match",
             "Exact width match (30.0\")",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
         {
           "product_number": "1132011W",
-          "score": 0.92,
+          "score": 0.6700000000000002,
           "reasons": [
             "Category match",
             "Exact width match (30.0\")",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         }
       ]
     },
     {
-      "timestamp": "2026-04-16T04:52:32.410505",
+      "timestamp": "2026-04-16T06:54:41.852709",
       "elevation": "E4",
       "object_id": 19,
-      "casework_type": "sink_cabinet",
+      "casework_type": "base_cabinet",
       "bbox": [
         1908,
         5,
@@ -1038,54 +1022,53 @@
       ],
       "estimated_width": 24.0,
       "estimated_height": 38.0,
-      "detection_confidence": 0.75,
+      "detection_confidence": 0.65,
       "matched_product": "1120211W",
-      "match_confidence": 1.0,
+      "match_confidence": 0.8200000000000002,
       "is_flagged": false,
       "flag_reason": "",
-      "notes": "Category match; Exact width match (24.0\"); Drawer features match (3 drawers, 14 h-lines); Circle feature suggests sink; Standard right-hand orientation; Wood block preferred",
+      "notes": "Category match; Exact width match (24.0\"); Drawer features confirmed (0 drawers, 14 h-lines); Standard right-hand; Wood block",
       "candidates": [
         {
           "product_number": "1120211W",
-          "score": 1.0,
+          "score": 0.8200000000000002,
           "reasons": [
             "Category match",
             "Exact width match (24.0\")",
-            "Drawer features match (3 drawers, 14 h-lines)",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Drawer features confirmed (0 drawers, 14 h-lines)",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
         {
-          "product_number": "1120222W",
-          "score": 1.0,
+          "product_number": "1220211W",
+          "score": 0.8200000000000002,
           "reasons": [
             "Category match",
             "Exact width match (24.0\")",
-            "Drawer features match (3 drawers, 14 h-lines)",
-            "Circle feature suggests sink",
-            "Wood block preferred"
+            "Drawer features confirmed (0 drawers, 14 h-lines)",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
         {
-          "product_number": "1120233W",
-          "score": 1.0,
+          "product_number": "1320311W",
+          "score": 0.8200000000000002,
           "reasons": [
             "Category match",
             "Exact width match (24.0\")",
-            "Drawer features match (3 drawers, 14 h-lines)",
-            "Circle feature suggests sink",
-            "Wood block preferred"
+            "Drawer features confirmed (0 drawers, 14 h-lines)",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         }
       ]
     },
     {
-      "timestamp": "2026-04-16T04:52:32.410505",
+      "timestamp": "2026-04-16T06:54:41.852709",
       "elevation": "E4",
       "object_id": 20,
       "casework_type": "base_cabinet",
@@ -1097,52 +1080,52 @@
       ],
       "estimated_width": 12.0,
       "estimated_height": 33.4,
-      "detection_confidence": 0.7,
+      "detection_confidence": 0.65,
       "matched_product": "1010211W",
-      "match_confidence": 1.0,
+      "match_confidence": 0.8200000000000002,
       "is_flagged": false,
       "flag_reason": "",
-      "notes": "Category match; Exact width match (12.0\"); Drawer features match (3 drawers, 6 h-lines); Standard right-hand orientation; Wood block preferred",
+      "notes": "Category match; Exact width match (12.0\"); Drawer features confirmed (0 drawers, 6 h-lines); Standard right-hand; Wood block",
       "candidates": [
         {
           "product_number": "1010211W",
-          "score": 1.0,
+          "score": 0.8200000000000002,
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (3 drawers, 6 h-lines)",
-            "Standard right-hand orientation",
-            "Wood block preferred"
-          ],
-          "penalties": []
-        },
-        {
-          "product_number": "1010222W",
-          "score": 1.0,
-          "reasons": [
-            "Category match",
-            "Exact width match (12.0\")",
-            "Drawer features match (3 drawers, 6 h-lines)",
-            "Wood block preferred"
+            "Drawer features confirmed (0 drawers, 6 h-lines)",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
         {
           "product_number": "1020211W",
-          "score": 1.0,
+          "score": 0.8200000000000002,
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (3 drawers, 6 h-lines)",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Drawer features confirmed (0 drawers, 6 h-lines)",
+            "Standard right-hand",
+            "Wood block"
+          ],
+          "penalties": []
+        },
+        {
+          "product_number": "1010222W",
+          "score": 0.8000000000000002,
+          "reasons": [
+            "Category match",
+            "Exact width match (12.0\")",
+            "Drawer features confirmed (0 drawers, 6 h-lines)",
+            "Wood block"
           ],
           "penalties": []
         }
       ]
     },
     {
-      "timestamp": "2026-04-16T04:52:32.410505",
+      "timestamp": "2026-04-16T06:54:41.852709",
       "elevation": "E4",
       "object_id": 21,
       "casework_type": "drawer_unit",
@@ -1154,55 +1137,58 @@
       ],
       "estimated_width": 12.0,
       "estimated_height": 38.0,
-      "detection_confidence": 0.75,
+      "detection_confidence": 0.8,
       "matched_product": "1010211W",
-      "match_confidence": 0.9700000000000001,
+      "match_confidence": 0.9400000000000002,
       "is_flagged": false,
       "flag_reason": "",
-      "notes": "Category match; Exact width match (12.0\"); Drawer features match (9 drawers, 15 h-lines); Standard right-hand orientation; Wood block preferred",
+      "notes": "Category match; Exact width match (12.0\"); Related config: door_drawer; Drawer features confirmed (6 drawers, 15 h-lines); Standard right-hand; Wood block",
       "candidates": [
         {
           "product_number": "1010211W",
-          "score": 0.9700000000000001,
+          "score": 0.9400000000000002,
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (9 drawers, 15 h-lines)",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (6 drawers, 15 h-lines)",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
         {
           "product_number": "1020211W",
-          "score": 0.9700000000000001,
+          "score": 0.9400000000000002,
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (9 drawers, 15 h-lines)",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (6 drawers, 15 h-lines)",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
         {
           "product_number": "1010222W",
-          "score": 0.9500000000000001,
+          "score": 0.9200000000000002,
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (9 drawers, 15 h-lines)",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (6 drawers, 15 h-lines)",
+            "Wood block"
           ],
           "penalties": []
         }
       ]
     },
     {
-      "timestamp": "2026-04-16T04:52:32.410505",
+      "timestamp": "2026-04-16T06:54:41.852709",
       "elevation": "E4",
       "object_id": 22,
-      "casework_type": "sink_cabinet",
+      "casework_type": "drawer_unit",
       "bbox": [
         2438,
         5,
@@ -1211,12 +1197,12 @@
       ],
       "estimated_width": 12.0,
       "estimated_height": 38.0,
-      "detection_confidence": 0.7000000000000001,
+      "detection_confidence": 0.8,
       "matched_product": "1010211W",
       "match_confidence": 1.0,
       "is_flagged": false,
       "flag_reason": "",
-      "notes": "Category match; Exact width match (12.0\"); Drawer features match (16 drawers, 22 h-lines); Center vertical line suggests double door; Circle feature suggests sink; Standard right-hand orientation; Wood block preferred",
+      "notes": "Category match; Exact width match (12.0\"); Related config: door_drawer; Drawer features confirmed (14 drawers, 22 h-lines); Double door pattern confirmed; Standard right-hand; Wood block",
       "candidates": [
         {
           "product_number": "1010211W",
@@ -1224,11 +1210,11 @@
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (16 drawers, 22 h-lines)",
-            "Center vertical line suggests double door",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (14 drawers, 22 h-lines)",
+            "Double door pattern confirmed",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
@@ -1238,10 +1224,10 @@
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (16 drawers, 22 h-lines)",
-            "Center vertical line suggests double door",
-            "Circle feature suggests sink",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (14 drawers, 22 h-lines)",
+            "Double door pattern confirmed",
+            "Wood block"
           ],
           "penalties": []
         },
@@ -1251,18 +1237,18 @@
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (16 drawers, 22 h-lines)",
-            "Center vertical line suggests double door",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (14 drawers, 22 h-lines)",
+            "Double door pattern confirmed",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         }
       ]
     },
     {
-      "timestamp": "2026-04-16T04:52:32.410505",
+      "timestamp": "2026-04-16T06:54:41.852709",
       "elevation": "E4",
       "object_id": 23,
       "casework_type": "drawer_unit",
@@ -1274,7 +1260,7 @@
       ],
       "estimated_width": 6.0,
       "estimated_height": 38.0,
-      "detection_confidence": 0.7999999999999999,
+      "detection_confidence": 0.85,
       "matched_product": "CFC1001W",
       "match_confidence": 0.6,
       "is_flagged": false,
@@ -1283,7 +1269,7 @@
       "candidates": []
     },
     {
-      "timestamp": "2026-04-16T04:52:32.410505",
+      "timestamp": "2026-04-16T06:54:41.852709",
       "elevation": "E4",
       "object_id": 24,
       "casework_type": "drawer_unit",
@@ -1295,12 +1281,12 @@
       ],
       "estimated_width": 12.0,
       "estimated_height": 38.0,
-      "detection_confidence": 0.75,
+      "detection_confidence": 0.8,
       "matched_product": "1010211W",
       "match_confidence": 1.0,
       "is_flagged": false,
       "flag_reason": "",
-      "notes": "Category match; Exact width match (12.0\"); Drawer features match (9 drawers, 14 h-lines); Center vertical line suggests double door; Standard right-hand orientation; Wood block preferred",
+      "notes": "Category match; Exact width match (12.0\"); Related config: door_drawer; Drawer features confirmed (6 drawers, 14 h-lines); Double door pattern confirmed; Standard right-hand; Wood block",
       "candidates": [
         {
           "product_number": "1010211W",
@@ -1308,10 +1294,11 @@
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (9 drawers, 14 h-lines)",
-            "Center vertical line suggests double door",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (6 drawers, 14 h-lines)",
+            "Double door pattern confirmed",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
@@ -1321,9 +1308,10 @@
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (9 drawers, 14 h-lines)",
-            "Center vertical line suggests double door",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (6 drawers, 14 h-lines)",
+            "Double door pattern confirmed",
+            "Wood block"
           ],
           "penalties": []
         },
@@ -1333,17 +1321,18 @@
           "reasons": [
             "Category match",
             "Exact width match (12.0\")",
-            "Drawer features match (9 drawers, 14 h-lines)",
-            "Center vertical line suggests double door",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Related config: door_drawer",
+            "Drawer features confirmed (6 drawers, 14 h-lines)",
+            "Double door pattern confirmed",
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         }
       ]
     },
     {
-      "timestamp": "2026-04-16T04:52:32.410505",
+      "timestamp": "2026-04-16T06:54:41.852709",
       "elevation": "E4",
       "object_id": 25,
       "casework_type": "drawer_unit",
@@ -1355,7 +1344,7 @@
       ],
       "estimated_width": 7.0,
       "estimated_height": 38.0,
-      "detection_confidence": 0.7999999999999999,
+      "detection_confidence": 0.85,
       "matched_product": "CFC1001W",
       "match_confidence": 0.6,
       "is_flagged": false,
@@ -1364,10 +1353,10 @@
       "candidates": []
     },
     {
-      "timestamp": "2026-04-16T04:52:32.410505",
+      "timestamp": "2026-04-16T06:54:41.852709",
       "elevation": "E4",
       "object_id": 26,
-      "casework_type": "sink_cabinet",
+      "casework_type": "base_cabinet",
       "bbox": [
         2620,
         5,
@@ -1376,46 +1365,43 @@
       ],
       "estimated_width": 30.0,
       "estimated_height": 38.0,
-      "detection_confidence": 0.75,
+      "detection_confidence": 0.65,
       "matched_product": "1131011W",
-      "match_confidence": 0.92,
+      "match_confidence": 0.6700000000000002,
       "is_flagged": false,
       "flag_reason": "",
-      "notes": "Category match; Exact width match (30.0\"); Circle feature suggests sink; Standard right-hand orientation; Wood block preferred",
+      "notes": "Category match; Exact width match (30.0\"); Standard right-hand; Wood block",
       "candidates": [
         {
           "product_number": "1131011W",
-          "score": 0.92,
+          "score": 0.6700000000000002,
           "reasons": [
             "Category match",
             "Exact width match (30.0\")",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
         {
           "product_number": "1131211W",
-          "score": 0.92,
+          "score": 0.6700000000000002,
           "reasons": [
             "Category match",
             "Exact width match (30.0\")",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         },
         {
           "product_number": "1132011W",
-          "score": 0.92,
+          "score": 0.6700000000000002,
           "reasons": [
             "Category match",
             "Exact width match (30.0\")",
-            "Circle feature suggests sink",
-            "Standard right-hand orientation",
-            "Wood block preferred"
+            "Standard right-hand",
+            "Wood block"
           ],
           "penalties": []
         }

@@ -371,32 +371,79 @@ class ObjectDetector:
             prev_line = is_line
         features["horizontal_line_groups"] = line_groups
 
-        # Estimate drawer count from horizontal lines in the lower 2/3
-        lower_region = binary_seg[seg_h // 4:, :]
-        lh_proj = np.sum(lower_region > 0, axis=1)
-        prev_line = False
-        drawer_lines = 0
-        for val in lh_proj:
-            if val > seg_w * 0.5 and not prev_line:
-                drawer_lines += 1
-            prev_line = val > seg_w * 0.5
-        features["drawer_count"] = max(0, drawer_lines - 2)  # subtract top/bottom lines
+        # Estimate drawer count from horizontal lines in the cabinet body
+        # Exclude the top 5% and bottom 15% (countertop edge and toe kick area)
+        body_top = int(seg_h * 0.05)
+        body_bottom = int(seg_h * 0.85)
+        body_region = binary_seg[body_top:body_bottom, :]
+        body_h = body_bottom - body_top
+        if body_h > 10:
+            bh_proj = np.sum(body_region > 0, axis=1)
+            # Use stricter threshold - drawers have strong full-width lines
+            line_threshold = seg_w * 0.6
+            prev_line = False
+            interior_lines = []
+            for row_idx, val in enumerate(bh_proj):
+                is_line = val > line_threshold
+                if is_line and not prev_line:
+                    interior_lines.append(row_idx)
+                prev_line = is_line
+
+            # True drawers have 3+ evenly spaced interior lines
+            # A door cabinet might have 0-2 interior lines (just structural)
+            # Subtract 2 for the top/bottom cabinet edges that appear as lines
+            raw_drawer_count = max(0, len(interior_lines) - 2)
+
+            # Verify spacing is roughly even (drawer signature)
+            if len(interior_lines) >= 4:
+                spacings = [interior_lines[i+1] - interior_lines[i] for i in range(len(interior_lines)-1)]
+                avg_spacing = sum(spacings) / len(spacings)
+                # If spacing is consistent (within 40% of average), likely drawers
+                even_count = sum(1 for s in spacings if abs(s - avg_spacing) < avg_spacing * 0.4)
+                if even_count >= len(spacings) * 0.6:
+                    features["drawer_count"] = raw_drawer_count
+                else:
+                    # Uneven spacing - likely shelves or structural lines, not drawers
+                    features["drawer_count"] = max(0, raw_drawer_count - 2)
+            else:
+                features["drawer_count"] = raw_drawer_count
+        else:
+            features["drawer_count"] = 0
 
         # Check for vertical center line (double doors)
+        # Only check above the toe kick area (upper 85%)
         center_x = seg_w // 2
-        center_band = binary_seg[:, max(0, center_x - 2):min(seg_w, center_x + 3)]
+        upper_seg = binary_seg[:int(seg_h * 0.85), :]
+        center_band = upper_seg[:, max(0, center_x - 2):min(seg_w, center_x + 3)]
         if center_band.size > 0:
             center_fill = np.count_nonzero(center_band) / center_band.size
-            features["has_center_vertical"] = center_fill > 0.3
+            # Require a strong continuous vertical line (>40% fill in center band)
+            features["has_center_vertical"] = center_fill > 0.40
 
-        # Circle detection for sinks
+        # Circle detection for sinks - strict parameters to avoid false positives
+        # Only accept large, well-defined circles that look like sink basins
         try:
-            circles = cv2.HoughCircles(gray_seg, cv2.HOUGH_GRADIENT, dp=1.5,
-                                       minDist=seg_w // 2, param1=80, param2=50,
-                                       minRadius=max(3, seg_w // 10),
-                                       maxRadius=seg_w // 3)
-            if circles is not None and len(circles[0]) > 0:
-                features["has_circle"] = True
+            min_sink_width_px = seg_w * 0.25  # circle must be at least 25% of cabinet width
+            max_sink_radius = seg_w // 3
+            min_sink_radius = max(8, seg_w // 6)  # sinks are large - at least 1/6 width
+
+            if seg_w > 80:  # only look for sinks in reasonably wide segments
+                circles = cv2.HoughCircles(gray_seg, cv2.HOUGH_GRADIENT, dp=1.5,
+                                           minDist=seg_w // 2, param1=80, param2=120,
+                                           minRadius=min_sink_radius,
+                                           maxRadius=max_sink_radius)
+                if circles is not None and len(circles[0]) > 0:
+                    # Verify the circle is centered and large enough to be a real sink basin
+                    for c in circles[0]:
+                        cx, cy, cr = int(c[0]), int(c[1]), int(c[2])
+                        # Circle must be in the upper 2/3 of the cabinet (sink basins are above toe kick)
+                        # Circle must be roughly centered horizontally
+                        h_center = abs(cx - seg_w // 2) < seg_w * 0.35
+                        in_upper = cy < seg_h * 0.7
+                        large_enough = cr >= min_sink_radius
+                        if h_center and in_upper and large_enough:
+                            features["has_circle"] = True
+                            break
         except Exception:
             pass
 
@@ -406,77 +453,177 @@ class ObjectDetector:
 
         drawer_count = features["drawer_count"]
 
-        if features["has_circle"]:
+        # Only classify as sink if circle detected AND width is realistic for a sink (>=24")
+        # Sink cabinets are typically 30-48" wide
+        width_inches_est = seg_w / (seg_h / 38.0) if seg_h > 0 else 0
+        if features["has_circle"] and width_inches_est >= 24:
             casework_type = CaseworkType.SINK_CABINET
-            confidence = 0.65
+            confidence = 0.70
 
         elif drawer_count >= 4:
             casework_type = CaseworkType.DRAWER_UNIT
-            confidence = 0.7
+            confidence = 0.75
             features["notes"] = f"~{drawer_count} drawers detected"
+
+        elif drawer_count >= 3:
+            # 3 drawers - likely a drawer unit
+            casework_type = CaseworkType.DRAWER_UNIT
+            confidence = 0.65
+            features["notes"] = f"~{drawer_count} drawers detected"
+
+        elif drawer_count >= 2 and features["has_center_vertical"]:
+            # Door + drawer combo with center stile - double door with drawers
+            casework_type = CaseworkType.BASE_CABINET
+            confidence = 0.65
+            features["notes"] = "Double door/drawer combo"
 
         elif drawer_count >= 2:
             # Door + drawer combo
             casework_type = CaseworkType.BASE_CABINET
-            confidence = 0.6
+            confidence = 0.60
             features["notes"] = "Door/drawer combo"
 
         elif features["fill_density"] < 0.08:
             casework_type = CaseworkType.OPEN_SHELF
-            confidence = 0.5
+            confidence = 0.55
 
         elif features["has_center_vertical"]:
             casework_type = CaseworkType.BASE_CABINET
-            confidence = 0.6
+            confidence = 0.65
             features["notes"] = "Double door (center line detected)"
+
+        elif line_groups >= 2:
+            # Some horizontal structure - single door cabinet
+            casework_type = CaseworkType.BASE_CABINET
+            confidence = 0.55
+            features["notes"] = "Single door cabinet"
 
         else:
             casework_type = CaseworkType.BASE_CABINET
-            confidence = 0.5
+            confidence = 0.50
 
-        # Narrow items might be fillers or end panels
+        # Narrow items are fillers or end panels
         if seg_w < seg_h * 0.15:
             casework_type = CaseworkType.FILLER
-            confidence = 0.5
+            confidence = 0.60
+        elif seg_w < seg_h * 0.25 and features["fill_density"] < 0.15:
+            casework_type = CaseworkType.FILLER
+            confidence = 0.55
 
         return casework_type, confidence, features
 
     def _create_debug_image(self, original: np.ndarray, result: DetectionResult) -> np.ndarray:
+        """Create a high-quality, client-presentable detection visualization."""
         debug = original.copy() if len(original.shape) == 3 else cv2.cvtColor(original, cv2.COLOR_GRAY2BGR)
+        img_h, img_w = debug.shape[:2]
+
+        # Scale up for readability if image is small
+        scale_up = 1
+        if img_w < 2000:
+            scale_up = max(2, 3000 // img_w)
+            debug = cv2.resize(debug, (img_w * scale_up, img_h * scale_up), interpolation=cv2.INTER_LANCZOS4)
 
         type_colors = {
-            CaseworkType.BASE_CABINET: (0, 255, 0),
-            CaseworkType.WALL_CABINET: (255, 0, 0),
-            CaseworkType.SINK: (0, 0, 255),
-            CaseworkType.SINK_CABINET: (0, 128, 255),
-            CaseworkType.DRAWER_UNIT: (255, 255, 0),
-            CaseworkType.OPEN_SHELF: (128, 128, 0),
-            CaseworkType.COUNTERTOP: (0, 255, 255),
-            CaseworkType.FILLER: (128, 0, 128),
-            CaseworkType.END_PANEL: (200, 100, 0),
-            CaseworkType.UNKNOWN: (128, 128, 128),
+            CaseworkType.BASE_CABINET: (0, 200, 0),       # green
+            CaseworkType.WALL_CABINET: (200, 120, 0),     # dark blue
+            CaseworkType.SINK: (0, 0, 220),               # red
+            CaseworkType.SINK_CABINET: (0, 100, 220),     # orange-red
+            CaseworkType.DRAWER_UNIT: (200, 200, 0),      # cyan
+            CaseworkType.OPEN_SHELF: (0, 180, 180),       # yellow-green
+            CaseworkType.COUNTERTOP: (0, 220, 220),       # yellow
+            CaseworkType.FILLER: (180, 0, 180),           # magenta
+            CaseworkType.END_PANEL: (100, 100, 200),      # salmon
+            CaseworkType.UNKNOWN: (128, 128, 128),        # gray
         }
 
-        # Draw subview boundaries
+        type_labels = {
+            CaseworkType.BASE_CABINET: "BASE CAB",
+            CaseworkType.WALL_CABINET: "WALL CAB",
+            CaseworkType.SINK: "SINK",
+            CaseworkType.SINK_CABINET: "SINK CAB",
+            CaseworkType.DRAWER_UNIT: "DRAWER",
+            CaseworkType.OPEN_SHELF: "OPEN SHELF",
+            CaseworkType.COUNTERTOP: "COUNTERTOP",
+            CaseworkType.FILLER: "FILLER",
+            CaseworkType.END_PANEL: "END PANEL",
+            CaseworkType.UNKNOWN: "UNKNOWN",
+        }
+
+        # Draw subview boundaries (subtle)
         for sv in result.subviews:
-            cv2.rectangle(debug, (sv.x_start, sv.content_top),
-                          (sv.x_end, sv.content_bottom), (100, 100, 100), 1)
+            cv2.rectangle(debug,
+                          (sv.x_start * scale_up, sv.content_top * scale_up),
+                          (sv.x_end * scale_up, sv.content_bottom * scale_up),
+                          (180, 180, 180), 1)
+
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        font_scale = 0.5 * scale_up
+        thickness = max(1, scale_up)
+        box_thickness = max(2, scale_up + 1)
 
         for obj in result.objects:
             color = type_colors.get(obj.casework_type, (128, 128, 128))
-            x, y, w, h = obj.bbox
-            thickness = 2 if obj.confidence >= 0.6 else 1
+            x, y, w, h = [v * scale_up for v in obj.bbox]
 
-            cv2.rectangle(debug, (x, y), (x + w, y + h), color, thickness)
+            # Draw bounding box with thicker lines
+            cv2.rectangle(debug, (x, y), (x + w, y + h), color, box_thickness)
 
-            label_parts = [obj.casework_type.value.split("_")[0]]
-            if obj.estimated_width_inches:
-                label_parts.append(f'{obj.estimated_width_inches:.0f}"')
-            label_parts.append(f'{obj.confidence:.0%}')
-            label = " ".join(label_parts)
+            # Semi-transparent fill
+            overlay = debug.copy()
+            cv2.rectangle(overlay, (x, y), (x + w, y + h), color, -1)
+            cv2.addWeighted(overlay, 0.08, debug, 0.92, 0, debug)
 
-            font_scale = 0.35
-            cv2.putText(debug, label, (x + 2, y + 12), cv2.FONT_HERSHEY_SIMPLEX,
-                        font_scale, color, 1)
+            # Label background
+            type_label = type_labels.get(obj.casework_type, "?")
+            width_str = f'{obj.estimated_width_inches:.0f}"' if obj.estimated_width_inches else ""
+            line1 = f"#{obj.obj_id} {type_label}"
+            line2 = f"{width_str}  {obj.confidence:.0%}"
+
+            (tw1, th1), _ = cv2.getTextSize(line1, font, font_scale * 0.9, thickness)
+            (tw2, th2), _ = cv2.getTextSize(line2, font, font_scale * 0.8, thickness)
+            label_w = max(tw1, tw2) + 8 * scale_up
+            label_h = th1 + th2 + 12 * scale_up
+
+            # Label above the box
+            label_x = x
+            label_y = max(0, y - label_h - 2 * scale_up)
+
+            cv2.rectangle(debug, (label_x, label_y),
+                          (label_x + label_w, label_y + label_h), color, -1)
+            cv2.rectangle(debug, (label_x, label_y),
+                          (label_x + label_w, label_y + label_h), (0, 0, 0), 1)
+
+            # White text on colored background
+            cv2.putText(debug, line1, (label_x + 4 * scale_up, label_y + th1 + 3 * scale_up),
+                        font, font_scale * 0.9, (255, 255, 255), thickness, cv2.LINE_AA)
+            cv2.putText(debug, line2, (label_x + 4 * scale_up, label_y + th1 + th2 + 8 * scale_up),
+                        font, font_scale * 0.8, (255, 255, 255), thickness, cv2.LINE_AA)
+
+        # Add legend at the bottom
+        legend_y = debug.shape[0] + 20 * scale_up
+        legend_height = 60 * scale_up
+        legend = np.ones((legend_height, debug.shape[1], 3), dtype=np.uint8) * 255
+        debug = np.vstack([debug, legend])
+
+        legend_x = 10 * scale_up
+        used_types = set(obj.casework_type for obj in result.objects)
+        for ct in sorted(used_types, key=lambda t: t.value):
+            color = type_colors.get(ct, (128, 128, 128))
+            label = type_labels.get(ct, ct.value)
+            box_size = 16 * scale_up
+
+            cv2.rectangle(debug, (legend_x, legend_y + 5 * scale_up),
+                          (legend_x + box_size, legend_y + 5 * scale_up + box_size), color, -1)
+            cv2.putText(debug, label,
+                        (legend_x + box_size + 5 * scale_up, legend_y + 5 * scale_up + box_size - 2 * scale_up),
+                        font, font_scale * 0.7, (0, 0, 0), thickness, cv2.LINE_AA)
+            text_w = cv2.getTextSize(label, font, font_scale * 0.7, thickness)[0][0]
+            legend_x += box_size + text_w + 20 * scale_up
+
+        # Summary text
+        summary = f"Total: {len(result.objects)} objects | Scale: {result.scale_factor:.2f} px/in | Width: {result.total_width_inches:.0f}\""
+        cv2.putText(debug, summary,
+                    (10 * scale_up, legend_y + 45 * scale_up),
+                    font, font_scale * 0.7, (60, 60, 60), thickness, cv2.LINE_AA)
 
         return debug

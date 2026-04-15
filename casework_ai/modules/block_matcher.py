@@ -44,8 +44,8 @@ class BlockMatcher:
         self.library = block_library
         self.config = config
 
-        self.min_confidence = 0.5
-        self.high_confidence = 0.8
+        self.min_confidence = 0.35
+        self.high_confidence = 0.7
         self.size_tolerance = 2.0  # inches
 
         if config:
@@ -177,65 +177,88 @@ class BlockMatcher:
 
     def _score_candidate(self, obj: DetectedObject, block: BlockInfo,
                          search_params: Dict) -> Tuple[float, List[str], List[str]]:
-        """Score how well a block matches a detected object."""
-        score = 0.5  # base score for category match
+        """Score how well a block matches a detected object.
+
+        Scoring breakdown:
+          Width match:   0.0 - 0.40  (most important - exact match rewards heavily)
+          Config match:  0.0 - 0.20  (drawer vs door vs open)
+          Features:      0.0 - 0.15  (visual features corroborate classification)
+          Preferences:   0.0 - 0.07  (hand, wood)
+          Base:          0.20        (category match baseline)
+          Total max:     ~1.0
+        """
+        score = 0.20  # lower base - category match alone shouldn't be confident
         reasons = ["Category match"]
         penalties = []
 
-        # Width match (most important)
+        # Width match (most important factor - 40% of total possible score)
         if obj.estimated_width_inches and block.width_inches:
             width_diff = abs(obj.estimated_width_inches - block.width_inches)
-            if width_diff < 1:
-                score += 0.3
+            if width_diff < 0.5:
+                score += 0.40
                 reasons.append(f"Exact width match ({block.width_inches}\")")
+            elif width_diff < 1.5:
+                score += 0.30
+                reasons.append(f"Close width match ({block.width_inches}\" vs {obj.estimated_width_inches:.0f}\")")
             elif width_diff < self.size_tolerance:
                 score += 0.15
-                reasons.append(f"Close width match ({block.width_inches}\" vs {obj.estimated_width_inches:.0f}\")")
+                reasons.append(f"Approximate width ({block.width_inches}\" vs {obj.estimated_width_inches:.0f}\")")
             else:
-                score -= 0.2
+                score -= 0.15
                 penalties.append(f"Width mismatch ({block.width_inches}\" vs {obj.estimated_width_inches:.0f}\")")
 
-        # Configuration preference
+        # Configuration preference (20% of total)
         prefer_config = search_params.get("prefer_config")
         if prefer_config:
             if block.config_type == prefer_config:
-                score += 0.1
-                reasons.append(f"Config type preference: {prefer_config}")
+                score += 0.20
+                reasons.append(f"Config match: {prefer_config}")
+            elif block.config_type and prefer_config in ("drawer",) and block.config_type in ("4_drawer", "door_drawer"):
+                score += 0.12
+                reasons.append(f"Related config: {block.config_type}")
             elif block.config_type:
-                score -= 0.05
+                score -= 0.08
+                penalties.append(f"Config mismatch: want {prefer_config}, got {block.config_type}")
 
-        # Feature-based scoring
+        # Feature-based scoring (15% of total)
         features = obj.features
         if features:
-            # Drawer detection - match horizontal_line_groups from object_detector
             drawer_count = features.get("drawer_count", 0)
             h_line_groups = features.get("horizontal_line_groups", 0)
-            if (drawer_count >= 2 or h_line_groups >= 3) and block.config_type in ("drawer", "4_drawer", "door_drawer", "door_2drawer"):
+
+            # Drawer features
+            has_drawer_features = drawer_count >= 2 or h_line_groups >= 3
+            is_drawer_block = block.config_type in ("drawer", "4_drawer", "door_drawer", "door_2drawer")
+
+            if has_drawer_features and is_drawer_block:
                 score += 0.15
-                reasons.append(f"Drawer features match ({drawer_count} drawers, {h_line_groups} h-lines)")
-            elif (drawer_count >= 2 or h_line_groups >= 3) and block.config_type in ("full_door", "open"):
-                score -= 0.1
-                penalties.append("Drawer features but block is door/open config")
+                reasons.append(f"Drawer features confirmed ({drawer_count} drawers, {h_line_groups} h-lines)")
+            elif has_drawer_features and block.config_type in ("full_door", "open"):
+                score -= 0.12
+                penalties.append("Drawer features detected but block is door/open")
 
-            # Door detection - match has_center_vertical from object_detector
-            if features.get("has_center_vertical") and "door" in block.config_type:
-                score += 0.1
-                reasons.append("Center vertical line suggests double door")
+            # Door features
+            if features.get("has_center_vertical") and block.config_type and "door" in block.config_type:
+                score += 0.10
+                reasons.append("Double door pattern confirmed")
+            elif features.get("has_center_vertical") and is_drawer_block:
+                score -= 0.05
+                penalties.append("Center line suggests doors, not drawers")
 
-            # Sink detection
+            # Sink features
             if features.get("has_circle") and obj.casework_type == CaseworkType.SINK_CABINET:
-                score += 0.1
-                reasons.append("Circle feature suggests sink")
+                score += 0.10
+                reasons.append("Sink basin detected")
 
-        # Prefer right-hand (standard) blocks
+        # Prefer right-hand (standard)
         if block.hand == "right":
             score += 0.02
-            reasons.append("Standard right-hand orientation")
+            reasons.append("Standard right-hand")
 
         # Prefer wood blocks (W suffix) for wood casework projects
         if block.product_number.endswith("W"):
             score += 0.05
-            reasons.append("Wood block preferred")
+            reasons.append("Wood block")
 
         return max(0, min(1.0, score)), reasons, penalties
 
