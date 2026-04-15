@@ -1,0 +1,23 @@
+# Casework AI Pipeline - Dependencies
+# ====================================
+
+# Core PDF processing
+PyMuPDF>=1.23.0           # PDF reading, vector extraction, image rendering
+
+# Computer vision / image processing
+opencv-python>=4.8.0      # Object detection, contour analysis, image processing
+numpy>=1.24.0             # Array operations for image data
+
+# CAD output generation
+ezdxf>=1.1.0              # DXF file creation and editing
+
+# Configuration
+PyYAML>=6.0               # YAML config file loading
+
+# Optional: Vision LLM support (uncomment to enable)
+# openai>=1.0.0           # For GPT-4o vision API
+# anthropic>=0.18.0       # For Claude vision API
+
+# Optional: YOLO object detection (uncomment to enable)
+# ultralytics>=8.0.0      # YOLOv8 model training and inference
+# torch>=2.0.0            # PyTorch for YOLO backend

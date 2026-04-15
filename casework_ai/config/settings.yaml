@@ -1,0 +1,143 @@
+# Casework AI Pipeline Configuration
+# ====================================
+
+project:
+  name: "Mott Casework Conversion"
+  version: "0.1.0"
+  description: "AI-assisted architectural casework elevation to DXF/DWG conversion"
+
+paths:
+  # Primary block libraries (wood casework for this project)
+  block_library_front: "../new_database/Wood Front View (1)"
+  block_library_section: "../new_database/Wood Section View"
+
+  # Additional block libraries
+  extra_libraries:
+    - path: "../new_database/Casework - Section Views"
+      type: "section_metal"
+
+  # Original metal libraries (kept for reference, not loaded by default)
+  # block_library_front_metal: "../Casework - Front Views"
+  # block_library_section_metal: "../Casework Section - Metal"
+  catalog_pdf: "../MottManufacturing_Version_9.1_FullCatalog_April2021-2.pdf"
+  output_dir: "../output"
+  logs_dir: "../logs"
+  rules_dir: "../rules"
+
+# Input PDF settings
+pdf:
+  default_dpi: 300
+  elevation_detection_dpi: 300
+  min_elevation_area: 5000  # minimum pixel area for a valid elevation region
+
+  # Elevation mapping for A407 sheet
+  # Maps 1-based region index (by position on page) to actual elevation label
+  # Determined by reading circled elevation markers on the architectural drawing
+  # To verify/update: run pipeline with --scan to see all extracted regions
+  elevation_map:
+    "1": "DETAIL"
+    "2": "E3"
+    "3": "E3_SECTION"
+    "4": "E2"
+    "5": "E5"
+    "6": "E6"
+    "7": "E4"
+
+# Detection settings
+detection:
+  # Geometry-based detection thresholds
+  min_cabinet_width_inches: 10
+  max_cabinet_width_inches: 60
+  min_cabinet_height_inches: 20
+  max_cabinet_height_inches: 40
+
+  # Line detection
+  hough_threshold: 50
+  min_line_length: 30
+  max_line_gap: 10
+
+  # Contour filtering
+  min_contour_area: 500
+  max_contour_area: 500000
+
+# Block matching settings
+matching:
+  min_confidence: 0.4
+  high_confidence_threshold: 0.8
+  size_tolerance_inches: 2.0
+
+  # Standard cabinet widths (inches) from Mott catalog
+  standard_widths: [12, 15, 18, 21, 24, 30, 36, 42, 48]
+
+  # Standard heights (inches)
+  standard_heights:
+    standing: 34.75
+    sitting: 29.25
+    ada: 28.25
+    wall_30: 30
+    wall_36: 36
+    wall_42: 42
+    wall_48: 48
+
+# CAD output settings
+cad:
+  default_units: "inches"
+  scale_factor: 1.0
+
+  # Layer definitions
+  layers:
+    cabinets: "CASEWORK-CABINETS"
+    countertops: "CASEWORK-COUNTERTOPS"
+    sinks: "CASEWORK-SINKS"
+    fixtures: "CASEWORK-FIXTURES"
+    dimensions: "CASEWORK-DIMENSIONS"
+    annotations: "CASEWORK-ANNOTATIONS"
+    flags: "CASEWORK-FLAGS"
+    section_marks: "CASEWORK-SECTIONS"
+
+  # Colors (AutoCAD color index)
+  colors:
+    cabinets: 7      # white
+    countertops: 3    # green
+    sinks: 5          # blue
+    fixtures: 6       # magenta
+    dimensions: 2     # yellow
+    annotations: 1    # red
+    flags: 1          # red
+    section_marks: 4  # cyan
+
+# Mott product number encoding reference
+# Position meanings in 7-digit product numbers:
+#   Digit 1: Series/material (1=steel base, 3=accessories, 5=wall, 6=floor)
+#   Digit 2-3: Width code (01=12", 11=18", 19=15", 12=24", 13=30", 14=36", 15=48", 16=21"/513mm, 17=42"/1000mm, 18=42", 19=15")
+#   Digit 4-5: Configuration (00=open, 01=door, 02=door/drawer, 03=drawer, 04=4-drawer, 09=shelf)
+#   Digit 6: Hinge/hand (1=right, 2=left)
+#   Digit 7: Door count or variant
+product_encoding:
+  width_codes:
+    "01": 12
+    "11": 18
+    "19": 15
+    "12": 24
+    "13": 30
+    "14": 36
+    "15": 48
+    "16": 21
+    "17": 42
+    "18": 42
+    "08": 36
+    "09": 15
+    "20": 12
+    "21": 18
+    "80": 36
+
+  height_categories:
+    "standing": 34.75
+    "sitting": 29.25
+    "ada": 28.25
+
+# Logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "pipeline.log"
