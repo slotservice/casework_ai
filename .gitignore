@@ -1,3 +1,8 @@
+# Internal project files (not for client)
+chat.md
+project_brief.md
+project_status&plan.md
+
 # Block library directories (too large for git, client-provided)
 Casework - Front Views/
 Casework Section - Metal/
