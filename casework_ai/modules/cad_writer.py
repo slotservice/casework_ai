@@ -1,8 +1,13 @@
 """
 CAD Writer Module
-Generates clean, editable DXF output files using ezdxf.
-Places matched blocks, dimensions, countertop outlines, annotations, and flags.
-Draws professional shop-drawing-style cabinet elevations.
+Generates professional shop-drawing-style DXF output files using ezdxf.
+Matches Mott Manufacturing elevation drawing standards with:
+- Wall/backsplash representation with hatching
+- Leader lines with cabinet description annotations
+- Proper elevation marker and title block
+- Material-specific cabinet patterns
+- Section cut markers
+- Full dimensioning with extension lines
 """
 
 import os
@@ -17,12 +22,23 @@ from ezdxf.enums import TextEntityAlignment
 from .block_matcher import MatchResult
 from .object_detector import DetectedObject, CaseworkType, DetectionResult
 
-# Map casework types that should get door details drawn
-_DOOR_TYPES = {CaseworkType.BASE_CABINET, CaseworkType.SINK_CABINET, CaseworkType.WALL_CABINET}
-# Map casework types that should get drawer details drawn
-_DRAWER_TYPES = {CaseworkType.DRAWER_UNIT}
-
 logger = logging.getLogger(__name__)
+
+
+# ------------------------------------------------------------------ #
+#  Type descriptions for leader annotations (Mott shop drawing format)
+# ------------------------------------------------------------------ #
+_TYPE_DESCRIPTIONS = {
+    CaseworkType.BASE_CABINET: "LOWER CASEWORK W/ DOORS\nATTACHED TOE KICKS - LG-1",
+    CaseworkType.DRAWER_UNIT: "LOWER CASEWORK W/ DRAWERS\nATTACHED TOE KICKS - LG-1",
+    CaseworkType.SINK_CABINET: "LOWER CASEWORK, SINK BASE\nOPEN BOTTOM - LG-1",
+    CaseworkType.OPEN_SHELF: "LOWER CASEWORK\nOPEN SHELVES - LG-1",
+    CaseworkType.FILLER: "FILLER STRIP",
+    CaseworkType.WALL_CABINET: "UPPER CASEWORK\nADJUSTABLE SHELVES - LG-1",
+    CaseworkType.PEGBOARD: "EPOXY PEG BOARD\nWITH DRIP TRAY",
+    CaseworkType.FUME_HOOD: "FUME HOOD\nSEE MECHANICAL",
+    CaseworkType.END_PANEL: "END PANEL",
+}
 
 
 @dataclass
@@ -45,22 +61,23 @@ class PlacementInfo:
 
 
 class CADWriter:
-    """Generates DXF output files with matched casework blocks."""
+    """Generates DXF output files matching Mott shop drawing standards."""
 
     # Standard dimensions (inches)
     TOE_KICK_H = 4.0
-    TOE_KICK_RECESS = 3.0  # toe kick setback from face
+    TOE_KICK_RECESS = 3.0
     COUNTERTOP_THICKNESS = 1.5
     COUNTERTOP_OVERHANG = 1.0
     HANDLE_RADIUS = 0.3
-    HANDLE_OFFSET = 2.5  # from door edge
-    DOOR_GAP = 0.0625  # 1/16" gap between doors
+    HANDLE_OFFSET = 2.5
+    DOOR_GAP = 0.0625
     DRAWER_GAP = 0.0625
+    BACKSPLASH_H = 18.0  # wall area above countertop
+    HATCH_SPACING = 2.0  # diagonal hatch line spacing for wall
 
     def __init__(self, config=None):
         self.config = config
 
-        # Layer definitions
         self.layers = {
             "cabinets": "CASEWORK-CABINETS",
             "countertops": "CASEWORK-COUNTERTOPS",
@@ -68,26 +85,31 @@ class CADWriter:
             "fixtures": "CASEWORK-FIXTURES",
             "dimensions": "CASEWORK-DIMENSIONS",
             "annotations": "CASEWORK-ANNOTATIONS",
+            "leaders": "CASEWORK-LEADERS",
             "flags": "CASEWORK-FLAGS",
             "section_marks": "CASEWORK-SECTIONS",
             "product_numbers": "CASEWORK-PRODUCT-NUMBERS",
             "outlines": "CASEWORK-OUTLINES",
             "hidden": "CASEWORK-HIDDEN",
+            "wall": "CASEWORK-WALL",
+            "titleblock": "CASEWORK-TITLEBLOCK",
         }
 
-        # Colors (AutoCAD color index)
         self.colors = {
             "cabinets": 7,       # white
             "countertops": 3,    # green
             "sinks": 5,          # blue
             "fixtures": 6,       # magenta
             "dimensions": 2,     # yellow
-            "annotations": 1,    # red
+            "annotations": 7,    # white
+            "leaders": 7,        # white
             "flags": 1,          # red
             "section_marks": 4,  # cyan
             "product_numbers": 2, # yellow
             "outlines": 7,       # white
             "hidden": 8,         # dark gray
+            "wall": 8,           # dark gray
+            "titleblock": 7,     # white
         }
 
         if config:
@@ -98,10 +120,16 @@ class CADWriter:
             if cfg_colors:
                 self.colors.update(cfg_colors)
 
+    # ================================================================== #
+    #  Main entry point
+    # ================================================================== #
+
     def generate_dxf(self, match_results: List[MatchResult],
                      detection_result: DetectionResult,
                      output_path: str,
-                     title: str = "Casework Elevation") -> str:
+                     title: str = "Casework Elevation",
+                     elevation_label: str = "E4",
+                     room_name: str = "") -> str:
         logger.info(f"Generating DXF output: {output_path}")
 
         doc = ezdxf.new("R2010")
@@ -112,14 +140,21 @@ class CADWriter:
         scale = detection_result.scale_factor if detection_result.scale_factor > 0 else 1.0
         placements = self._calculate_placements(match_results, scale)
 
-        # Draw in proper order: back to front
+        if not placements:
+            doc.saveas(output_path)
+            return output_path
+
+        # Draw in order: wall background -> countertop -> cabinets -> annotations
+        self._draw_wall_backsplash(msp, placements)
         self._draw_countertop(msp, placements, detection_result)
         for placement in placements:
             self._draw_cabinet(msp, placement)
         self._add_dimensions(msp, placements)
         self._add_product_numbers(msp, placements)
+        self._add_leader_annotations(msp, placements)
+        self._add_section_marks(msp, placements)
         self._add_flags(msp, match_results, scale)
-        self._add_title_block(msp, title, match_results, placements)
+        self._add_elevation_marker(msp, placements, elevation_label, room_name, title)
 
         os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
         doc.saveas(output_path)
@@ -130,22 +165,17 @@ class CADWriter:
         for key, layer_name in self.layers.items():
             color = self.colors.get(key, 7)
             doc.layers.add(layer_name, color=color)
-        # Set hidden layer to dashed linetype
         doc.linetypes.add("HIDDEN", pattern=[0.25, 0.125, -0.0625])
+        doc.linetypes.add("CENTER", pattern=[0.5, 0.25, -0.125, 0.0, -0.125])
         doc.layers.get(self.layers["hidden"]).dxf.linetype = "HIDDEN"
+
+    # ================================================================== #
+    #  Placement calculation (preserves spatial layout)
+    # ================================================================== #
 
     def _calculate_placements(self, match_results: List[MatchResult],
                                scale: float) -> List[PlacementInfo]:
-        """Calculate placements using actual detected positions to preserve spatial layout.
-
-        Uses the original pixel positions (converted to inches via scale factor) so that
-        gaps between cabinet runs in the original drawing are preserved in the DXF output.
-        Within each contiguous run, cabinets are placed tightly end-to-end using their
-        snapped widths to produce clean alignment.
-        """
         placements = []
-
-        # First pass: collect all objects with their real pixel positions
         items = []
         for result in match_results:
             obj = result.detected_object
@@ -156,12 +186,9 @@ class CADWriter:
         if not items:
             return placements
 
-        # Sort by pixel x position
         items.sort(key=lambda ir: ir[0].bbox[0])
 
-        # Identify contiguous runs by detecting large gaps
-        # A gap larger than ~15 inches (in pixel space) indicates separate cabinet runs
-        gap_threshold_px = scale * 12  # ~12 inches of gap = separate run
+        gap_threshold_px = scale * 12
         runs = []
         current_run = [items[0]]
         for i in range(1, len(items)):
@@ -177,12 +204,9 @@ class CADWriter:
                 current_run.append(items[i])
         runs.append(current_run)
 
-        # Second pass: place each run, with real gaps between runs
-        # Convert the first object's pixel position to the DXF starting x
         first_px = items[0][0].bbox[0]
 
         for run in runs:
-            # Starting x for this run: use pixel position relative to first object
             run_start_px = run[0][0].bbox[0]
             run_start_inches = (run_start_px - first_px) / scale if scale > 0 else 0
             current_x = run_start_inches
@@ -203,20 +227,12 @@ class CADWriter:
                 has_circle = obj.features.get("has_circle", False) if obj.features else False
 
                 placement = PlacementInfo(
-                    x=current_x,
-                    y=0.0,
-                    width=width,
-                    height=height,
-                    product_number=product_num,
-                    layer=self.layers.get(layer_key, "CASEWORK-CABINETS"),
-                    color=self.colors.get(layer_key, 7),
-                    confidence=result.confidence,
-                    label=label,
-                    casework_type=obj.casework_type,
-                    drawer_count=drawer_count,
-                    has_center_vertical=has_center_vert,
-                    has_circle=has_circle,
-                    obj_id=obj.obj_id,
+                    x=current_x, y=0.0, width=width, height=height,
+                    product_number=product_num, layer=self.layers.get(layer_key, "CASEWORK-CABINETS"),
+                    color=self.colors.get(layer_key, 7), confidence=result.confidence,
+                    label=label, casework_type=obj.casework_type,
+                    drawer_count=drawer_count, has_center_vertical=has_center_vert,
+                    has_circle=has_circle, obj_id=obj.obj_id,
                 )
                 placements.append(placement)
                 current_x += width
@@ -225,27 +241,87 @@ class CADWriter:
 
     def _type_to_layer_key(self, casework_type: CaseworkType) -> str:
         mapping = {
-            CaseworkType.BASE_CABINET: "cabinets",
-            CaseworkType.WALL_CABINET: "cabinets",
-            CaseworkType.SINK: "sinks",
-            CaseworkType.SINK_CABINET: "sinks",
-            CaseworkType.DRAWER_UNIT: "cabinets",
-            CaseworkType.OPEN_SHELF: "cabinets",
-            CaseworkType.COUNTERTOP: "countertops",
-            CaseworkType.FILLER: "cabinets",
-            CaseworkType.END_PANEL: "cabinets",
-            CaseworkType.PEGBOARD: "fixtures",
-            CaseworkType.FUME_HOOD: "fixtures",
-            CaseworkType.FIXTURE: "fixtures",
+            CaseworkType.BASE_CABINET: "cabinets", CaseworkType.WALL_CABINET: "cabinets",
+            CaseworkType.SINK: "sinks", CaseworkType.SINK_CABINET: "sinks",
+            CaseworkType.DRAWER_UNIT: "cabinets", CaseworkType.OPEN_SHELF: "cabinets",
+            CaseworkType.COUNTERTOP: "countertops", CaseworkType.FILLER: "cabinets",
+            CaseworkType.END_PANEL: "cabinets", CaseworkType.PEGBOARD: "fixtures",
+            CaseworkType.FUME_HOOD: "fixtures", CaseworkType.FIXTURE: "fixtures",
         }
         return mapping.get(casework_type, "cabinets")
 
-    # ------------------------------------------------------------------ #
-    #  Cabinet drawing - professional shop drawing style
-    # ------------------------------------------------------------------ #
+    def _find_runs(self, placements: List[PlacementInfo]) -> List[List[PlacementInfo]]:
+        if not placements:
+            return []
+        sorted_p = sorted(placements, key=lambda p: p.x)
+        runs = [[sorted_p[0]]]
+        for i in range(1, len(sorted_p)):
+            prev = sorted_p[i - 1]
+            curr = sorted_p[i]
+            gap = curr.x - (prev.x + prev.width)
+            if gap > 8:
+                runs.append([curr])
+            else:
+                runs[-1].append(curr)
+        return runs
+
+    # ================================================================== #
+    #  Wall / Backsplash
+    # ================================================================== #
+
+    def _draw_wall_backsplash(self, msp, placements: List[PlacementInfo]):
+        """Draw wall area above countertop with brick/masonry hatch pattern."""
+        runs = self._find_runs(placements)
+        wall_layer = self.layers["wall"]
+        wall_color = self.colors["wall"]
+        att = {"layer": wall_layer, "color": wall_color}
+
+        for run in runs:
+            min_x = min(p.x for p in run) - 2
+            max_x = max(p.x + p.width for p in run) + 2
+            max_h = max(p.height for p in run)
+
+            wall_bottom = max_h + self.COUNTERTOP_THICKNESS
+            wall_top = wall_bottom + self.BACKSPLASH_H
+
+            # Wall outline
+            msp.add_lwpolyline(
+                [(min_x, wall_bottom), (max_x, wall_bottom),
+                 (max_x, wall_top), (min_x, wall_top), (min_x, wall_bottom)],
+                dxfattribs=att, close=True)
+
+            # Brick/masonry hatch pattern
+            # Standard modular brick: 2-2/3" face height, 8" wide, 3/8" mortar joints
+            brick_h = 2.67    # brick face height in inches
+            brick_w = 8.0     # standard brick width
+            mortar = 0.38     # mortar joint thickness
+            course_h = brick_h + mortar  # total course height
+
+            wall_h = wall_top - wall_bottom
+            n_courses = int(wall_h / course_h) + 2
+
+            for i in range(n_courses):
+                jy = wall_bottom + i * course_h
+
+                # Horizontal mortar joint line
+                if wall_bottom < jy < wall_top:
+                    msp.add_line((min_x, jy), (max_x, jy), dxfattribs=att)
+
+                # Vertical joints — staggered by half-brick on alternating courses
+                x_offset = (brick_w / 2) if (i % 2 == 1) else 0
+                vx = min_x + x_offset
+                jy_bottom = max(wall_bottom, jy)
+                jy_top = min(jy + course_h, wall_top)
+                while vx < max_x:
+                    if min_x < vx < max_x:
+                        msp.add_line((vx, jy_bottom), (vx, jy_top), dxfattribs=att)
+                    vx += brick_w
+
+    # ================================================================== #
+    #  Cabinet drawing
+    # ================================================================== #
 
     def _draw_cabinet(self, msp, p: PlacementInfo):
-        """Draw a single cabinet in shop-drawing style."""
         if p.casework_type == CaseworkType.FILLER:
             self._draw_filler(msp, p)
         elif p.casework_type == CaseworkType.DRAWER_UNIT:
@@ -264,20 +340,13 @@ class CADWriter:
         return {"layer": self.layers["hidden"], "color": self.colors["hidden"]}
 
     def _draw_outer_box(self, msp, p: PlacementInfo):
-        """Draw the standard cabinet outer rectangle and toe kick."""
         x, y, w, h = p.x, p.y, p.width, p.height
         att = self._cab_attribs(p)
-
-        # Main outline
         msp.add_lwpolyline(
             [(x, y), (x + w, y), (x + w, y + h), (x, y + h), (x, y)],
             dxfattribs=att, close=True)
-
-        # Toe kick line
         tk = self.TOE_KICK_H
         msp.add_line((x, y + tk), (x + w, y + tk), dxfattribs=att)
-
-        # Toe kick recess lines (hidden/dashed) showing the recessed base
         rec = self.TOE_KICK_RECESS
         hatt = self._hidden_attribs()
         msp.add_line((x + rec, y), (x + rec, y + tk), dxfattribs=hatt)
@@ -285,32 +354,23 @@ class CADWriter:
         msp.add_line((x + rec, y), (x + w - rec, y), dxfattribs=hatt)
 
     def _draw_door_cabinet(self, msp, p: PlacementInfo):
-        """Draw a base cabinet with doors (single or double)."""
         self._draw_outer_box(msp, p)
         x, y, w, h = p.x, p.y, p.width, p.height
         att = self._cab_attribs(p)
         tk = self.TOE_KICK_H
         door_area_h = h - tk
         gap = self.DOOR_GAP
-
         is_double = w > 21 or p.has_center_vertical
 
         if is_double:
-            # Double door - two panels with center stile
             mid = x + w / 2
             msp.add_line((mid, y + tk), (mid, y + h), dxfattribs=att)
-
-            # Left door panel (inset lines showing door edge)
             self._draw_door_panel(msp, x + gap, y + tk + gap, w / 2 - gap * 2, door_area_h - gap * 2, att, "left")
-            # Right door panel
             self._draw_door_panel(msp, mid + gap, y + tk + gap, w / 2 - gap * 2, door_area_h - gap * 2, att, "right")
         else:
-            # Single door
             self._draw_door_panel(msp, x + gap, y + tk + gap, w - gap * 2, door_area_h - gap * 2, att, "right")
 
     def _draw_door_panel(self, msp, x, y, w, h, att, hand):
-        """Draw a single door panel with raised panel detail and handle."""
-        # Raised panel inset (typical shop drawing detail)
         inset = min(1.5, w * 0.12, h * 0.06)
         if w > 4 and h > 8:
             msp.add_lwpolyline(
@@ -318,8 +378,6 @@ class CADWriter:
                  (x + w - inset, y + h - inset), (x + inset, y + h - inset),
                  (x + inset, y + inset)],
                 dxfattribs=att, close=True)
-
-        # Door handle
         if hand == "left":
             hx = x + w - self.HANDLE_OFFSET
         else:
@@ -328,80 +386,56 @@ class CADWriter:
         msp.add_circle((hx, hy), self.HANDLE_RADIUS, dxfattribs=att)
 
     def _draw_drawer_unit(self, msp, p: PlacementInfo):
-        """Draw a drawer unit with multiple drawers."""
         self._draw_outer_box(msp, p)
         x, y, w, h = p.x, p.y, p.width, p.height
         att = self._cab_attribs(p)
         tk = self.TOE_KICK_H
-
         num_drawers = max(p.drawer_count, 4)
         drawer_area_h = h - tk
         drawer_h = drawer_area_h / num_drawers
-
         for i in range(1, num_drawers):
             dy = y + tk + i * drawer_h
             msp.add_line((x, dy), (x + w, dy), dxfattribs=att)
-
-        # Drawer handles (centered horizontal pulls)
         for i in range(num_drawers):
             dy_center = y + tk + i * drawer_h + drawer_h / 2
-            pull_half_w = min(w * 0.15, 2.0)  # pull width proportional to cabinet
+            pull_half_w = min(w * 0.15, 2.0)
             cx = x + w / 2
-            msp.add_line(
-                (cx - pull_half_w, dy_center),
-                (cx + pull_half_w, dy_center),
-                dxfattribs=att)
-            # Small end caps on the pull
+            msp.add_line((cx - pull_half_w, dy_center), (cx + pull_half_w, dy_center), dxfattribs=att)
             cap = 0.2
             msp.add_line((cx - pull_half_w, dy_center - cap), (cx - pull_half_w, dy_center + cap), dxfattribs=att)
             msp.add_line((cx + pull_half_w, dy_center - cap), (cx + pull_half_w, dy_center + cap), dxfattribs=att)
 
     def _draw_sink_cabinet(self, msp, p: PlacementInfo):
-        """Draw a sink cabinet - double doors with sink basin shown as hidden/dashed."""
-        # Draw as double-door cabinet first
         self._draw_outer_box(msp, p)
         x, y, w, h = p.x, p.y, p.width, p.height
         att = self._cab_attribs(p)
         tk = self.TOE_KICK_H
         door_area_h = h - tk
-
-        # Always double door for sink cabinets
         mid = x + w / 2
         msp.add_line((mid, y + tk), (mid, y + h), dxfattribs=att)
         self._draw_door_panel(msp, x, y + tk, w / 2, door_area_h, att, "left")
         self._draw_door_panel(msp, mid, y + tk, w / 2, door_area_h, att, "right")
-
-        # Sink basin outline (dashed/hidden) - ellipse in upper portion
         hatt = self._hidden_attribs()
         basin_w = w * 0.55
         basin_h = door_area_h * 0.35
         basin_cx = x + w / 2
         basin_cy = y + h - door_area_h * 0.45
-
-        # Draw basin as a rectangle with rounded indication (ezdxf ellipse)
         try:
             msp.add_ellipse(
-                center=(basin_cx, basin_cy),
-                major_axis=(basin_w / 2, 0),
-                ratio=basin_h / basin_w if basin_w > 0 else 0.5,
-                dxfattribs=hatt)
+                center=(basin_cx, basin_cy), major_axis=(basin_w / 2, 0),
+                ratio=basin_h / basin_w if basin_w > 0 else 0.5, dxfattribs=hatt)
         except Exception:
-            # Fallback: draw as rectangle
             bx = basin_cx - basin_w / 2
             by = basin_cy - basin_h / 2
             msp.add_lwpolyline(
                 [(bx, by), (bx + basin_w, by), (bx + basin_w, by + basin_h),
-                 (bx, by + basin_h), (bx, by)],
-                dxfattribs=hatt, close=True)
+                 (bx, by + basin_h), (bx, by)], dxfattribs=hatt, close=True)
 
     def _draw_open_shelf(self, msp, p: PlacementInfo):
-        """Draw open shelving unit."""
         self._draw_outer_box(msp, p)
         x, y, w, h = p.x, p.y, p.width, p.height
         att = self._cab_attribs(p)
         tk = self.TOE_KICK_H
-
-        # Draw 2-3 shelf lines (evenly spaced)
         shelf_area = h - tk
         num_shelves = 2 if w < 24 else 3
         for i in range(1, num_shelves + 1):
@@ -409,232 +443,347 @@ class CADWriter:
             msp.add_line((x, sy), (x + w, sy), dxfattribs=att)
 
     def _draw_filler(self, msp, p: PlacementInfo):
-        """Draw a filler strip - simple rectangle with diagonal hatch."""
         x, y, w, h = p.x, p.y, p.width, p.height
         att = self._cab_attribs(p)
-
-        # Outline
         msp.add_lwpolyline(
             [(x, y), (x + w, y), (x + w, y + h), (x, y + h), (x, y)],
             dxfattribs=att, close=True)
-
-        # Diagonal lines to indicate filler
         num_diags = max(2, int(h / 6))
         for i in range(num_diags):
             dy = y + (h * (i + 1) / (num_diags + 1))
-            # Diagonal from bottom-left to top-right within the strip
-            x1 = x
-            y1 = dy
-            x2 = x + w
-            y2 = min(dy + w, y + h)
+            x1, y1 = x, dy
+            x2, y2 = x + w, min(dy + w, y + h)
             msp.add_line((x1, y1), (x2, y2), dxfattribs=att)
 
-    # ------------------------------------------------------------------ #
+    # ================================================================== #
     #  Countertop
-    # ------------------------------------------------------------------ #
-
-    def _find_runs(self, placements: List[PlacementInfo]) -> List[List[PlacementInfo]]:
-        """Group placements into contiguous cabinet runs (separated by gaps)."""
-        if not placements:
-            return []
-        sorted_p = sorted(placements, key=lambda p: p.x)
-        runs = [[sorted_p[0]]]
-        for i in range(1, len(sorted_p)):
-            prev = sorted_p[i - 1]
-            curr = sorted_p[i]
-            gap = curr.x - (prev.x + prev.width)
-            if gap > 8:  # more than 8" gap = separate run
-                runs.append([curr])
-            else:
-                runs[-1].append(curr)
-        return runs
+    # ================================================================== #
 
     def _draw_countertop(self, msp, placements: List[PlacementInfo],
                           detection_result: DetectionResult):
         if not placements:
             return
-
         layer = self.layers["countertops"]
         color = self.colors["countertops"]
         att = {"layer": layer, "color": color}
 
-        # Draw separate countertop for each cabinet run
         runs = self._find_runs(placements)
         for run in runs:
             min_x = min(p.x for p in run) - self.COUNTERTOP_OVERHANG
             max_x = max(p.x + p.width for p in run) + self.COUNTERTOP_OVERHANG
             max_h = max(p.height for p in run)
-
             ct_bottom = max_h
             ct_top = max_h + self.COUNTERTOP_THICKNESS
-
             msp.add_lwpolyline(
                 [(min_x, ct_bottom), (max_x, ct_bottom),
                  (max_x, ct_top), (min_x, ct_top), (min_x, ct_bottom)],
                 dxfattribs=att, close=True)
+            msp.add_line((min_x, ct_bottom - 0.25), (max_x, ct_bottom - 0.25), dxfattribs=att)
 
-            # Nosing detail
-            msp.add_line(
-                (min_x, ct_bottom - 0.25), (max_x, ct_bottom - 0.25),
-                dxfattribs=att)
+    # ================================================================== #
+    #  Leader annotations
+    # ================================================================== #
 
-    # ------------------------------------------------------------------ #
+    def _add_leader_annotations(self, msp, placements: List[PlacementInfo]):
+        """Add horizontal leader lines with Mott shop drawing style annotations."""
+        leader_layer = self.layers["leaders"]
+        leader_color = self.colors["leaders"]
+        att = {"layer": leader_layer, "color": leader_color}
+
+        runs = self._find_runs(placements)
+
+        for run in runs:
+            max_h = max(p.height for p in run)
+            wall_top = max_h + self.COUNTERTOP_THICKNESS + self.BACKSPLASH_H
+            run_right = max(p.x + p.width for p in run)
+
+            # Group consecutive cabinets of the same type for shared leaders
+            groups = []
+            current_group = [run[0]]
+            for i in range(1, len(run)):
+                if run[i].casework_type == current_group[0].casework_type:
+                    current_group.append(run[i])
+                else:
+                    groups.append(current_group)
+                    current_group = [run[i]]
+            groups.append(current_group)
+
+            # Leaders originate from cabinet mid-height, angled up to a shelf above wall
+            # Text sits on the horizontal shelf extending to the right
+            shelf_x_start = run_right + 6.0
+            shelf_length = 28.0
+            leader_y_base = wall_top + 4.0   # first shelf level above wall
+            leader_spacing = 8.0             # vertical spacing between shelves
+
+            shelf_idx = 0
+            for group in groups:
+                ctype = group[0].casework_type
+                if ctype == CaseworkType.FILLER:
+                    continue
+
+                # Origin dot: center of the group at mid-cabinet height
+                group_cx = (group[0].x + group[-1].x + group[-1].width) / 2
+                group_cy = max_h * 0.55
+
+                # Shelf level for this leader
+                shelf_y = leader_y_base + shelf_idx * leader_spacing
+
+                # Diagonal leg from dot to shelf corner
+                msp.add_line((group_cx, group_cy), (shelf_x_start, shelf_y), dxfattribs=att)
+                # Horizontal shelf line
+                msp.add_line((shelf_x_start, shelf_y), (shelf_x_start + shelf_length, shelf_y), dxfattribs=att)
+
+                # Dot at origin (small filled circle)
+                msp.add_circle((group_cx, group_cy), 0.4, dxfattribs=att)
+
+                # Text description above the shelf line
+                desc = _TYPE_DESCRIPTIONS.get(ctype, ctype.value.upper().replace("_", " "))
+                text_lines = desc.split("\n")
+                for li, line in enumerate(text_lines):
+                    ty = shelf_y + 0.5 + li * 2.0
+                    msp.add_text(line, dxfattribs={**att, "height": 1.4}).set_placement(
+                        (shelf_x_start + 0.5, ty), align=TextEntityAlignment.LEFT)
+
+                shelf_idx += 1
+
+    # ================================================================== #
+    #  Section cut markers
+    # ================================================================== #
+
+    def _add_section_marks(self, msp, placements: List[PlacementInfo]):
+        """Add section cut markers at the ends of cabinet runs."""
+        sec_layer = self.layers["section_marks"]
+        sec_color = self.colors["section_marks"]
+        att = {"layer": sec_layer, "color": sec_color}
+
+        runs = self._find_runs(placements)
+        section_id = 1
+
+        for run in runs:
+            max_h = max(p.height for p in run)
+            run_end = run[-1].x + run[-1].width
+
+            # Section mark at right end of run
+            mark_x = run_end + 1.5
+            mark_y_bottom = -2
+            mark_y_top = max_h + self.COUNTERTOP_THICKNESS + 2
+
+            # Vertical cut line (center linetype)
+            msp.add_line((mark_x, mark_y_bottom), (mark_x, mark_y_top),
+                         dxfattribs={**att, "linetype": "CENTER"})
+
+            # Circle with section label at bottom
+            label = f"RS-{section_id}"
+            circle_r = 2.5
+            cy = mark_y_bottom - circle_r - 1
+            msp.add_circle((mark_x, cy), circle_r, dxfattribs=att)
+            msp.add_text(label, dxfattribs={**att, "height": 1.3}).set_placement(
+                (mark_x, cy), align=TextEntityAlignment.MIDDLE_CENTER)
+
+            section_id += 1
+
+    # ================================================================== #
     #  Dimensions
-    # ------------------------------------------------------------------ #
+    # ================================================================== #
+
+    @staticmethod
+    def _to_feetinches(inches: float) -> str:
+        """Convert decimal inches to feet-inches string: 3'-6\""""
+        total = round(inches)
+        feet = total // 12
+        rem = total % 12
+        if feet == 0:
+            return f'{rem}"'
+        elif rem == 0:
+            return f"{feet}'-0\""
+        else:
+            return f"{feet}'-{rem}\""
 
     def _add_dimensions(self, msp, placements: List[PlacementInfo]):
         layer = self.layers["dimensions"]
         color = self.colors["dimensions"]
         att = {"layer": layer, "color": color}
-        ext_att = {"layer": layer, "color": 8}  # extension lines in dark gray
+        ext_att = {"layer": layer, "color": 8}
 
         runs = self._find_runs(placements)
+        if not runs:
+            return
+
+        global_max_h = max(p.height for run in runs for p in run)
+        wall_top = global_max_h + self.COUNTERTOP_THICKNESS + self.BACKSPLASH_H
+
+        # --- Width dimensions on TOP (above wall/backsplash) ---
+        # Individual cabinet widths at first tier
+        dim_y1 = wall_top + 4.0
+        # Overall run widths at second tier
+        dim_y2 = wall_top + 10.0
 
         for run in runs:
-            # Individual cabinet widths
-            dim_y = -4.0
+            # Individual widths
             for p in run:
                 mid_x = p.x + p.width / 2
-                text = f'{p.width:.0f}"'
-
+                text = self._to_feetinches(p.width)
                 msp.add_text(text, dxfattribs={**att, "height": 1.5}).set_placement(
-                    (mid_x, dim_y), align=TextEntityAlignment.MIDDLE_CENTER)
-
+                    (mid_x, dim_y1 + 1.0), align=TextEntityAlignment.MIDDLE_CENTER)
                 # Dimension line
-                msp.add_line((p.x + 0.5, dim_y + 1.2), (p.x + p.width - 0.5, dim_y + 1.2), dxfattribs=att)
-                # Tick marks
+                msp.add_line((p.x + 0.5, dim_y1), (p.x + p.width - 0.5, dim_y1), dxfattribs=att)
+                # Tick marks at each edge
                 for tx in (p.x, p.x + p.width):
-                    msp.add_line((tx, dim_y + 0.5), (tx, dim_y + 1.8), dxfattribs=att)
-                # Extension lines
-                msp.add_line((p.x, p.y - 0.5), (p.x, dim_y + 2.0), dxfattribs=ext_att)
-                msp.add_line((p.x + p.width, p.y - 0.5), (p.x + p.width, dim_y + 2.0), dxfattribs=ext_att)
+                    msp.add_line((tx, dim_y1 - 0.8), (tx, dim_y1 + 0.8), dxfattribs=att)
+                # Extension lines from wall top to dim line
+                msp.add_line((p.x, wall_top), (p.x, dim_y1 - 1.0), dxfattribs=ext_att)
+                msp.add_line((p.x + p.width, wall_top), (p.x + p.width, dim_y1 - 1.0), dxfattribs=ext_att)
 
-            # Run overall dimension
+            # Overall run width (second tier)
             run_start = run[0].x
             run_end = run[-1].x + run[-1].width
             run_width = run_end - run_start
             if len(run) > 1:
-                overall_y = dim_y - 5.0
-                text = f'{run_width:.0f}"'
+                mid = (run_start + run_end) / 2
+                text = self._to_feetinches(run_width)
                 msp.add_text(text, dxfattribs={**att, "height": 1.8}).set_placement(
-                    ((run_start + run_end) / 2, overall_y), align=TextEntityAlignment.MIDDLE_CENTER)
-                msp.add_line((run_start + 0.5, overall_y + 1.5), (run_end - 0.5, overall_y + 1.5), dxfattribs=att)
+                    (mid, dim_y2 + 1.5), align=TextEntityAlignment.MIDDLE_CENTER)
+                msp.add_line((run_start + 0.5, dim_y2), (run_end - 0.5, dim_y2), dxfattribs=att)
                 for tx in (run_start, run_end):
-                    msp.add_line((tx, overall_y + 0.8), (tx, overall_y + 2.2), dxfattribs=att)
+                    msp.add_line((tx, dim_y2 - 0.8), (tx, dim_y2 + 0.8), dxfattribs=att)
+                # Extension lines from first tier up
+                msp.add_line((run_start, dim_y1 + 1.0), (run_start, dim_y2 - 1.0), dxfattribs=ext_att)
+                msp.add_line((run_end, dim_y1 + 1.0), (run_end, dim_y2 - 1.0), dxfattribs=ext_att)
 
-        # Height dimension on the rightmost run
-        if runs:
-            last_run = runs[-1]
-            last_p = last_run[-1]
-            hx = last_p.x + last_p.width + 3.0
-            h = last_p.height
-            msp.add_line((hx, 0), (hx, h), dxfattribs=att)
-            msp.add_line((hx - 0.5, 0), (hx + 0.5, 0), dxfattribs=att)
-            msp.add_line((hx - 0.5, h), (hx + 0.5, h), dxfattribs=att)
-            msp.add_text(f'{h:.1f}"', dxfattribs={**att, "height": 1.2, "rotation": 90}).set_placement(
-                (hx + 1.5, h / 2), align=TextEntityAlignment.MIDDLE_CENTER)
+        # --- Height dimensions on LEFT side ---
+        min_x = min(p.x for run in runs for p in run)
+        hx = min_x - 5.0
 
-    # ------------------------------------------------------------------ #
-    #  Product numbers & annotations
-    # ------------------------------------------------------------------ #
+        max_h = global_max_h
+        ct_top = max_h + self.COUNTERTOP_THICKNESS
+
+        # Full cabinet height (floor to top of cabinet body)
+        msp.add_line((hx, 0), (hx, max_h), dxfattribs=att)
+        msp.add_line((hx - 0.8, 0), (hx + 0.8, 0), dxfattribs=att)
+        msp.add_line((hx - 0.8, max_h), (hx + 0.8, max_h), dxfattribs=att)
+        msp.add_text(self._to_feetinches(max_h), dxfattribs={**att, "height": 1.5, "rotation": 90}).set_placement(
+            (hx - 2.0, max_h / 2), align=TextEntityAlignment.MIDDLE_CENTER)
+
+        # Counter height (floor to countertop top)
+        hx2 = hx - 5.0
+        msp.add_line((hx2, 0), (hx2, ct_top), dxfattribs={**att, "color": 8})
+        msp.add_line((hx2 - 0.8, 0), (hx2 + 0.8, 0), dxfattribs={**att, "color": 8})
+        msp.add_line((hx2 - 0.8, ct_top), (hx2 + 0.8, ct_top), dxfattribs={**att, "color": 8})
+        msp.add_text(self._to_feetinches(ct_top), dxfattribs={**att, "height": 1.2, "rotation": 90, "color": 8}).set_placement(
+            (hx2 - 2.0, ct_top / 2), align=TextEntityAlignment.MIDDLE_CENTER)
+
+        # Toe kick height sub-dimension
+        tk = self.TOE_KICK_H
+        hx3 = hx - 10.0
+        msp.add_line((hx3, 0), (hx3, tk), dxfattribs={**att, "color": 8})
+        msp.add_line((hx3 - 0.5, 0), (hx3 + 0.5, 0), dxfattribs={**att, "color": 8})
+        msp.add_line((hx3 - 0.5, tk), (hx3 + 0.5, tk), dxfattribs={**att, "color": 8})
+        msp.add_text(self._to_feetinches(tk), dxfattribs={**att, "height": 1.0, "rotation": 90, "color": 8}).set_placement(
+            (hx3 - 1.5, tk / 2), align=TextEntityAlignment.MIDDLE_CENTER)
+
+    # ================================================================== #
+    #  Product numbers
+    # ================================================================== #
 
     def _add_product_numbers(self, msp, placements: List[PlacementInfo]):
         layer = self.layers["product_numbers"]
         color = self.colors["product_numbers"]
-
         for p in placements:
             if not p.product_number or p.product_number == "UNMATCHED":
                 continue
-
             mid_x = p.x + p.width / 2
-            # Place product number in the upper third of the cabinet (above any sink basin / between drawers)
             label_y = p.y + p.height * 0.78
-
-            # Scale text to fit in cabinet
             text_h = min(1.2, p.width * 0.08)
-            msp.add_text(
-                p.product_number,
-                dxfattribs={"layer": layer, "color": color, "height": text_h},
-            ).set_placement((mid_x, label_y), align=TextEntityAlignment.MIDDLE_CENTER)
+            msp.add_text(p.product_number, dxfattribs={"layer": layer, "color": color, "height": text_h}).set_placement(
+                (mid_x, label_y), align=TextEntityAlignment.MIDDLE_CENTER)
+
+    # ================================================================== #
+    #  Flags
+    # ================================================================== #
 
     def _add_flags(self, msp, match_results: List[MatchResult], scale: float):
         layer = self.layers["flags"]
         color = self.colors["flags"]
         att = {"layer": layer, "color": color}
-
         flag_y_offset = 0.0
         for result in match_results:
             if not result.is_flagged:
                 continue
-
             obj = result.detected_object
             x = obj.bbox[0] / scale if scale > 0 else obj.bbox[0]
             w = obj.estimated_width_inches or 24
-            flag_y = (obj.estimated_height_inches or 34.75) + 6
+            flag_y = (obj.estimated_height_inches or 34.75) + self.COUNTERTOP_THICKNESS + self.BACKSPLASH_H + 4
             flag_y += flag_y_offset
-
             flag_text = f"? {result.flag_reason}"
             msp.add_text(flag_text, dxfattribs={**att, "height": 1.0}).set_placement(
                 (x, flag_y), align=TextEntityAlignment.LEFT)
-
-            # Triangle warning marker
             cx = x + w / 2
             cy = flag_y - 1.5
             tri_r = 1.2
-            pts = [
-                (cx, cy + tri_r),
-                (cx - tri_r * 0.866, cy - tri_r * 0.5),
-                (cx + tri_r * 0.866, cy - tri_r * 0.5),
-                (cx, cy + tri_r),
-            ]
-            msp.add_lwpolyline(pts, dxfattribs=att, close=True)
+            msp.add_lwpolyline([
+                (cx, cy + tri_r), (cx - tri_r * 0.866, cy - tri_r * 0.5),
+                (cx + tri_r * 0.866, cy - tri_r * 0.5), (cx, cy + tri_r),
+            ], dxfattribs=att, close=True)
             msp.add_text("!", dxfattribs={**att, "height": 1.2}).set_placement(
                 (cx, cy), align=TextEntityAlignment.MIDDLE_CENTER)
-
             flag_y_offset += 3.5
 
-    def _add_title_block(self, msp, title: str, match_results: List[MatchResult],
-                         placements: List[PlacementInfo]):
-        layer = self.layers["annotations"]
-        ann_color = self.colors["annotations"]
+    # ================================================================== #
+    #  Elevation marker & title block (Mott format)
+    # ================================================================== #
 
-        total_matched = len([r for r in match_results if r.best_match])
-        total_flagged = len([r for r in match_results if r.is_flagged])
-        total = len(match_results)
+    def _add_elevation_marker(self, msp, placements: List[PlacementInfo],
+                               elevation_label: str, room_name: str, title: str):
+        """Add elevation circle marker and title block matching Mott format."""
+        tb_layer = self.layers["titleblock"]
+        tb_color = self.colors["titleblock"]
+        att = {"layer": tb_layer, "color": tb_color}
 
-        # Calculate average confidence
-        confidences = [r.confidence for r in match_results if r.confidence > 0]
+        if not placements:
+            return
+
+        first_x = placements[0].x
+        total_end = max(p.x + p.width for p in placements)
+
+        # Position title block below dimensions
+        tb_y = -16.0
+
+        # --- Elevation circle marker (bottom left) ---
+        circle_r = 4.0
+        cx = first_x - 8
+        cy = tb_y - 5
+
+        # Outer circle
+        msp.add_circle((cx, cy), circle_r, dxfattribs=att)
+        # Elevation label inside circle
+        msp.add_text(elevation_label, dxfattribs={**att, "height": 3.0}).set_placement(
+            (cx, cy), align=TextEntityAlignment.MIDDLE_CENTER)
+
+        # --- Title text to the right of circle ---
+        title_x = cx + circle_r + 3
+        # Room / elevation name
+        display_name = room_name if room_name else title
+        msp.add_text(display_name, dxfattribs={**att, "height": 2.2}).set_placement(
+            (title_x, cy + 1.5), align=TextEntityAlignment.LEFT)
+
+        # Scale and reference line
+        msp.add_line((title_x, cy - 0.5), (title_x + 60, cy - 0.5), dxfattribs={**att, "color": 8})
+        scale_text = '1/4" = 1\'-0"    REFERENCED ON  A2 / A407'
+        msp.add_text(scale_text, dxfattribs={**att, "height": 1.2, "color": 8}).set_placement(
+            (title_x, cy - 2.5), align=TextEntityAlignment.LEFT)
+
+        # --- Stats line (subtle, below title) ---
+        ann_att = {"layer": self.layers["annotations"], "color": 8}
+        stats_y = cy - 6
+        total_matched = len(placements)
+        total_width = sum(p.width for p in placements)
+        confidences = [p.confidence for p in placements if p.confidence > 0]
         avg_conf = sum(confidences) / len(confidences) if confidences else 0
 
-        # Total width
-        total_width = sum(p.width for p in placements) if placements else 0
+        stats = f"AI Pipeline: {total_matched} items matched  |  Avg confidence: {avg_conf:.0%}  |  Total width: {total_width:.0f}\""
+        msp.add_text(stats, dxfattribs={**ann_att, "height": 1.0}).set_placement(
+            (title_x, stats_y), align=TextEntityAlignment.LEFT)
 
-        # Title block below dimensions
-        title_y = -18.0
-        total_end = placements[-1].x + placements[-1].width if placements else 100
-
-        # Box around title block
-        tb_x = 0
-        tb_w = max(total_end, 80)
-        tb_h = 12
-        msp.add_lwpolyline(
-            [(tb_x, title_y), (tb_x + tb_w, title_y),
-             (tb_x + tb_w, title_y - tb_h), (tb_x, title_y - tb_h),
-             (tb_x, title_y)],
-            dxfattribs={"layer": layer, "color": 8}, close=True)
-
-        # Title
-        msp.add_text(title, dxfattribs={"layer": layer, "color": 7, "height": 2.5}).set_placement(
-            (tb_x + 2, title_y - 3), align=TextEntityAlignment.LEFT)
-
-        # Stats line
-        stats = (f"Items: {total}  |  Matched: {total_matched}  |  Flagged: {total_flagged}  |  "
-                 f"Avg Confidence: {avg_conf:.0%}  |  Total Width: {total_width:.0f}\"")
-        msp.add_text(stats, dxfattribs={"layer": layer, "color": ann_color, "height": 1.3}).set_placement(
-            (tb_x + 2, title_y - 6.5), align=TextEntityAlignment.LEFT)
-
-        # Generator credit
-        msp.add_text(
-            "Generated by Casework AI Pipeline - Mott Manufacturing",
-            dxfattribs={"layer": layer, "color": 8, "height": 1.0}).set_placement(
-            (tb_x + 2, title_y - 9.5), align=TextEntityAlignment.LEFT)
+        msp.add_text("Generated by Casework AI Pipeline - Mott Manufacturing",
+                     dxfattribs={**ann_att, "height": 0.8}).set_placement(
+            (title_x, stats_y - 2), align=TextEntityAlignment.LEFT)

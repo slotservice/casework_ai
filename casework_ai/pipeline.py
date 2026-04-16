@@ -196,7 +196,8 @@ class CaseworkPipeline:
             self.last_results,
             self.last_detection,
             dxf_path,
-            title=f"Elevation {elevation_label} - Mott Casework"
+            title=f"Elevation {elevation_label} - Mott Casework",
+            elevation_label=elevation_label,
         )
         results["dxf_path"] = dxf_path
 
