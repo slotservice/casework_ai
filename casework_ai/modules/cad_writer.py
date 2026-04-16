@@ -474,18 +474,24 @@ class CADWriter:
             max_h = max(p.height for p in run)
             ct_bottom = max_h
             ct_top = max_h + self.COUNTERTOP_THICKNESS
+            # Clean countertop rectangle (matches reference style)
             msp.add_lwpolyline(
                 [(min_x, ct_bottom), (max_x, ct_bottom),
                  (max_x, ct_top), (min_x, ct_top), (min_x, ct_bottom)],
                 dxfattribs=att, close=True)
-            msp.add_line((min_x, ct_bottom - 0.25), (max_x, ct_bottom - 0.25), dxfattribs=att)
 
     # ================================================================== #
     #  Leader annotations
     # ================================================================== #
 
     def _add_leader_annotations(self, msp, placements: List[PlacementInfo]):
-        """Add horizontal leader lines with Mott shop drawing style annotations."""
+        """Add horizontal leader lines matching Mott shop drawing style.
+
+        Leaders go from a dot on the RIGHT edge of the run → horizontal
+        to the text area on the right margin.  Each unique cabinet type
+        gets its own leader at a distinct y-height (stacked top-down),
+        so lines never cross over cabinets.
+        """
         leader_layer = self.layers["leaders"]
         leader_color = self.colors["leaders"]
         att = {"layer": leader_layer, "color": leader_color}
@@ -494,57 +500,65 @@ class CADWriter:
 
         for run in runs:
             max_h = max(p.height for p in run)
-            wall_top = max_h + self.COUNTERTOP_THICKNESS + self.BACKSPLASH_H
+            ct_top = max_h + self.COUNTERTOP_THICKNESS
+            wall_top = ct_top + self.BACKSPLASH_H
             run_right = max(p.x + p.width for p in run)
 
-            # Group consecutive cabinets of the same type for shared leaders
-            groups = []
-            current_group = [run[0]]
-            for i in range(1, len(run)):
-                if run[i].casework_type == current_group[0].casework_type:
-                    current_group.append(run[i])
-                else:
-                    groups.append(current_group)
-                    current_group = [run[i]]
-            groups.append(current_group)
+            # Collect unique types in this run (preserve first-seen order)
+            seen_types = []
+            for p in run:
+                if p.casework_type not in seen_types and p.casework_type != CaseworkType.FILLER:
+                    seen_types.append(p.casework_type)
 
-            # Leaders originate from cabinet mid-height, angled up to a shelf above wall
-            # Text sits on the horizontal shelf extending to the right
-            shelf_x_start = run_right + 6.0
-            shelf_length = 28.0
-            leader_y_base = wall_top + 4.0   # first shelf level above wall
-            leader_spacing = 8.0             # vertical spacing between shelves
+            if not seen_types:
+                continue
 
-            shelf_idx = 0
-            for group in groups:
-                ctype = group[0].casework_type
-                if ctype == CaseworkType.FILLER:
-                    continue
+            # Assign each type a distinct y-position on the RIGHT side of the run,
+            # stacked from top to bottom within the cabinet body height
+            # so leaders stay horizontal and never cross the drawing.
+            type_y_positions = {}
+            y_spacing = max_h / (len(seen_types) + 1)
+            for i, ctype in enumerate(seen_types):
+                type_y_positions[ctype] = max_h - (i + 1) * y_spacing
 
-                # Origin dot: center of the group at mid-cabinet height
-                group_cx = (group[0].x + group[-1].x + group[-1].width) / 2
-                group_cy = max_h * 0.55
+            # Text area starts to the right of the run
+            text_x = run_right + 10.0
+            shelf_length = 35.0
 
-                # Shelf level for this leader
-                shelf_y = leader_y_base + shelf_idx * leader_spacing
+            for ctype in seen_types:
+                leader_y = type_y_positions[ctype]
 
-                # Diagonal leg from dot to shelf corner
-                msp.add_line((group_cx, group_cy), (shelf_x_start, shelf_y), dxfattribs=att)
-                # Horizontal shelf line
-                msp.add_line((shelf_x_start, shelf_y), (shelf_x_start + shelf_length, shelf_y), dxfattribs=att)
+                # Dot on the right edge of the run at this y-height
+                dot_x = run_right + 1.0
+                msp.add_circle((dot_x, leader_y), 0.5, dxfattribs=att)
 
-                # Dot at origin (small filled circle)
-                msp.add_circle((group_cx, group_cy), 0.4, dxfattribs=att)
+                # Horizontal leader line from dot to text area
+                msp.add_line((dot_x, leader_y), (text_x + shelf_length, leader_y), dxfattribs=att)
 
-                # Text description above the shelf line
+                # Text description to the right of the shelf
                 desc = _TYPE_DESCRIPTIONS.get(ctype, ctype.value.upper().replace("_", " "))
                 text_lines = desc.split("\n")
                 for li, line in enumerate(text_lines):
-                    ty = shelf_y + 0.5 + li * 2.0
+                    ty = leader_y + 0.6 - li * 2.0
                     msp.add_text(line, dxfattribs={**att, "height": 1.4}).set_placement(
-                        (shelf_x_start + 0.5, ty), align=TextEntityAlignment.LEFT)
+                        (text_x + shelf_length + 1.0, ty), align=TextEntityAlignment.LEFT)
 
-                shelf_idx += 1
+        # --- "CLEAR" annotations between runs ---
+        if len(runs) > 1:
+            ann_layer = self.layers["annotations"]
+            ann_color = self.colors["annotations"]
+            ann_att = {"layer": ann_layer, "color": ann_color}
+            for i in range(len(runs) - 1):
+                run_a_end = max(p.x + p.width for p in runs[i])
+                run_b_start = min(p.x for p in runs[i + 1])
+                gap = run_b_start - run_a_end
+                if gap > 2:
+                    mid_x = (run_a_end + run_b_start) / 2
+                    mid_y = -4.0
+                    msp.add_text("CLEAR", dxfattribs={**ann_att, "height": 1.5}).set_placement(
+                        (mid_x, mid_y), align=TextEntityAlignment.MIDDLE_CENTER)
+                    msp.add_text(self._to_feetinches(gap), dxfattribs={**ann_att, "height": 1.2}).set_placement(
+                        (mid_x, mid_y - 2.5), align=TextEntityAlignment.MIDDLE_CENTER)
 
     # ================================================================== #
     #  Section cut markers
@@ -588,16 +602,26 @@ class CADWriter:
 
     @staticmethod
     def _to_feetinches(inches: float) -> str:
-        """Convert decimal inches to feet-inches string: 3'-6\""""
-        total = round(inches)
-        feet = total // 12
-        rem = total % 12
+        """Convert decimal inches to feet-inches string: 3'-6½\""""
+        # Determine fractional part (nearest ½")
+        whole = int(inches)
+        frac = inches - whole
+        if frac >= 0.75:
+            whole += 1
+            frac_str = ""
+        elif frac >= 0.25:
+            frac_str = "½"
+        else:
+            frac_str = ""
+
+        feet = whole // 12
+        rem = whole % 12
         if feet == 0:
-            return f'{rem}"'
-        elif rem == 0:
+            return f'{rem}{frac_str}"'
+        elif rem == 0 and not frac_str:
             return f"{feet}'-0\""
         else:
-            return f"{feet}'-{rem}\""
+            return f"{feet}'-{rem}{frac_str}\""
 
     def _add_dimensions(self, msp, placements: List[PlacementInfo]):
         layer = self.layers["dimensions"]
